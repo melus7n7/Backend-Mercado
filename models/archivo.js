@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   archivo.init({
     id: {
-      type: DataTypes.INTEGEE,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
