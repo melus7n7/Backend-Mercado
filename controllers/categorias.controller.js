@@ -1,10 +1,14 @@
 const { categoria } = require('../models')
-const { body, validationResult } = require('express-validator')
+const { body, param, validationResult } = require('express-validator')
 
 let self = {}
 
 self.categoriaValidator = [
     body('nombre', 'El campo {0} es obligatorio').not().isEmpty()
+]
+
+self.categoriaGetValidator = [
+    param('categoriaId', 'Es obligatorio ID').not().isEmpty().isInt()
 ]
 
 self.getAll = async function (req, res, next) {
@@ -18,7 +22,10 @@ self.getAll = async function (req, res, next) {
 
 self.get = async function (req, res, next) {
     try{
-        let id = req.params.id
+        const errors = validationResult(req)
+        if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
+
+        let id = req.params.categoriaId
         let data = await categoria.findByPk(id, { attributes: [['id', 'categoriaId'], 'nombre', 'protegida']})
         if(data)
             res.status(200).json(data)

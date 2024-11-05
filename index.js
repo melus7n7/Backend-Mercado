@@ -22,6 +22,8 @@ app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 //app.use(require("./middlewares/bitacora.middleware"))
 
 app.use("/api/categorias", require('./routes/categorias.routes'))
+app.use("/api/productos", require('./routes/productos.routes'))
+
 
 app.get("*", (req, res) => {
     res.status(404).send("Recurso no encontrado");
