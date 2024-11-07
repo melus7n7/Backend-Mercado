@@ -23,14 +23,15 @@ app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerFile))
 
 app.use("/api/categorias", require('./routes/categorias.routes'))
 app.use("/api/productos", require('./routes/productos.routes'))
+app.use("/api/archivos", require('./routes/archivos.routes'))
 
 
 app.get("*", (req, res) => {
     res.status(404).send("Recurso no encontrado");
 })
 
-//const errorhandler = require("./middlewares/errorhandler.middleware")
-//app.use(errorhandler)
+const errorhandler = require("./middlewares/errorhandler.middleware")
+app.use(errorhandler)
 
 app.listen(process.env.SERVER_PORT, () => {
     console.log(`Escuchando en el puerto ${process.env.SERVER_PORT}`);
