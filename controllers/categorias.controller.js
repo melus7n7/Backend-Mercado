@@ -7,8 +7,8 @@ self.categoriaValidator = [
     body('nombre', 'El campo {0} es obligatorio').not().isEmpty()
 ]
 
-self.categoriaGetValidator = [
-    param('categoriaId', 'Es obligatorio ID').not().isEmpty().isInt()
+self.categoriaIdValidator = [
+    param('id', 'Es obligatorio ID').not().isEmpty().isInt()
 ]
 
 self.getAll = async function (req, res, next) {
@@ -25,7 +25,7 @@ self.get = async function (req, res, next) {
         const errors = validationResult(req)
         if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
 
-        let id = req.params.categoriaId
+        let id = req.params.id
         let data = await categoria.findByPk(id, { attributes: [['id', 'categoriaId'], 'nombre', 'protegida']})
         if(data)
             res.status(200).json(data)
@@ -71,6 +71,9 @@ self.update = async function (req, res, next) {
 
 self.delete = async function (req, res, next) {
     try{
+        const errors = validationResult(req)
+        if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
+
         const id = req.params.id
         let data = await categoria.findByPk(id)
         if(!data)
