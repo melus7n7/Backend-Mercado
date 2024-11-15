@@ -1,0 +1,46 @@
+@token = 1890284
+
+GET http://localhost:3000/api/archivos/
+Authorization: Bearer {{token}}
+
+###
+
+GET http://localhost:3000/api/archivos/6/detalle
+Authorization: Bearer {{token}}
+
+###
+
+GET http://localhost:3000/api/archivos/8
+Authorization: Bearer {{token}}
+
+
+###
+
+POST http://localhost:3000/api/archivos/
+Content-Type: multipart/form-data; boundary=XXX
+Authorization: Bearer {{token}}
+
+--XXX
+Content-Disposition: form-data; name="file"; filename="prueba1.jpg"
+Content-Type: image/jpeg
+
+< ./assets/prueba1.jpg
+--XXX--
+
+###
+
+PUT http://localhost:3000/api/archivos/8
+Content-Type: multipart/form-data; boundary=XXX
+Authorization: Bearer {{token}}
+
+--XXX
+Content-Disposition: form-data; name="file"; filename="prueba1.jpg"
+Content-Type: image/jpeg
+
+< ./assets/prueba2.jpg
+--XXX---
+
+###
+
+DELETE http://localhost:3000/api/archivos/1
+Authorization: Bearer {{token}}
