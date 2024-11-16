@@ -5,7 +5,7 @@ const carrito = require('../controllers/carritos.controller')
 router.get('/', carrito.get)
 router.get('/:idProducto', carrito.carritoIDProductoValidator, carrito.getDetails)
 router.post('/', carrito.carritoBodyValidator, carrito.createProducto)
-router.put('/', carrito.carritoBodyValidator, carrito.updateProducto)
+router.put('/:idProducto', carrito.carritoPutValidator, carrito.updateProducto)
 router.delete('/:idProducto', carrito.carritoIDProductoValidator, carrito.deleteProducto)
 
 module.exports = router

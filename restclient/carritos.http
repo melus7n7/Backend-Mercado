@@ -1,0 +1,34 @@
+@token = 1839c
+
+GET http://localhost:3000/api/carritos
+Authorization: Bearer {{token}}
+
+###
+
+GET http://localhost:3000/api/carritos/1
+
+
+###
+
+POST http://localhost:3000/api/carritos/
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "productoid": 1,
+    "cantidad": 10
+}
+
+
+###
+
+PUT http://localhost:3000/api/carritos/1
+Content-Type: application/json
+
+{
+    "cantidad": 6
+}
+
+###
+
+DELETE http://localhost:3000/api/carritos/1
