@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   class carrito extends Model {
     static associate(models) {
       carrito.hasMany(models.carritoproducto, {as: 'carritoproducto' ,foreignKey: 'carritoid'});
+      carrito.belongsTo(models.usuario)
       //carrito.belongsToMany(models.producto, {as: 'producto', through: 'carritoproducto', foreignKey: 'carritoid'})
     }
   }
@@ -18,6 +19,10 @@ module.exports = (sequelize, DataTypes) => {
     protegida: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
+    },
+    usuarioid: {
+      type: DataTypes.UUID,
+      allowNull: false
     }
   }, {
     sequelize,

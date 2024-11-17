@@ -1,4 +1,5 @@
-const { producto, carritoproducto, carrito, Sequelize } = require('../models')
+const { usuario, producto, carritoproducto, carrito, Sequelize } = require('../models')
+const ClaimTypes = require('../config/claimtypes')
 const { body, param, validationResult } = require('express-validator')
 const Op = Sequelize.Op
 
@@ -24,7 +25,11 @@ self.get = async function (req, res, next) {
         if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
 
         //Conseguir por el usuario
-        let carritoid = 1
+        let carritoRecuperado = await obtenerCarritoUsuario(req);
+        if (carritoRecuperado == null) {
+            return res.status(400).send("No existe el carrito");
+        }
+        let carritoid = carritoRecuperado.id
 
         let data = await carrito.findAll({
             attributes: [['id', 'carritoId']],
@@ -66,7 +71,11 @@ self.getDetails = async function (req, res, next) {
         if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
 
         //Conseguir por el usuario
-        let carritoid = 1
+        let carritoRecuperado = await obtenerCarritoUsuario(req);
+        if (carritoRecuperado == null) {
+            return res.status(400).send("No existe el carrito");
+        }
+        let carritoid = carritoRecuperado.id
 
         let data = await carritoproducto.findAll({
             attributes: ['cantidad', ['productoid', 'productoId']],
@@ -88,8 +97,11 @@ self.createProducto = async function (req, res, next) {
         const errors = validationResult(req)
         if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
 
-        //encontrar el carrito id por el usuario
-        let carritoid = 1
+        let carritoRecuperado = await obtenerCarritoUsuario(req);
+        if (carritoRecuperado == null) {
+            return res.status(400).send("No existe el carrito");
+        }
+        let carritoid = carritoRecuperado.id
 
         let carritoprevio = await carritoproducto.findAll({
             attributes: ['carritoid', 'productoid'],
@@ -118,8 +130,11 @@ self.updateProducto = async function (req, res, next) {
         const errors = validationResult(req)
         if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
 
-        //encontrar el carritoid con el usuario
-        let carritoid = 1
+        let carritoRecuperado = await obtenerCarritoUsuario(req);
+        if (carritoRecuperado == null) {
+            return res.status(400).send("No existe el carrito");
+        }
+        let carritoid = carritoRecuperado.id
 
         let productoid = req.params.idProducto
         let cantidad = req.body.cantidad
@@ -140,9 +155,11 @@ self.deleteProducto = async function (req, res, next) {
         const errors = validationResult(req)
         if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
 
-        /*let itemToRemove = await carrito.findByPk(req.params.categoriaid) -- Encontrar carrit con el usuario
-        if(!itemToRemove) return res.status(404).send()*/
-        let carritoid = 1
+        let carritoRecuperado = await obtenerCarritoUsuario(req);
+        if (carritoRecuperado == null) {
+            return res.status(400).send("No existe el carrito");
+        }
+        let carritoid = carritoRecuperado.id
 
         let item = await producto.findByPk(req.params.idProducto)
         if (!item) return res.status(404).send()
@@ -154,7 +171,6 @@ self.deleteProducto = async function (req, res, next) {
             }
         })
 
-        //req.bitacora("productocategoria.remover", `${req.params.id}:${req.body.categoriaid}`)
         res.status(204).send()
 
     } catch (error) {
@@ -162,5 +178,41 @@ self.deleteProducto = async function (req, res, next) {
     }
 }
 
+async function obtenerCarritoUsuario(req) {
+    try {
+        let decodedToken = req.decodedToken;
+        if (decodedToken == null || decodedToken[ClaimTypes.Name] == null) {
+            return null
+        }
+
+        const data = await usuario.findOne({
+            where: { email: decodedToken[ClaimTypes.Name] },
+            raw: true,
+            attributes: ['id', 'email']
+        })
+        
+        if (data == null) {
+            return null
+        }
+        
+        let carritoCompras = await carrito.findOne({
+            where: { usuarioid: data.id },
+            raw: true,
+            attributes: ['id']
+        })
+
+        if (carritoCompras == null) {
+            carritoCompras = await carrito.create({
+                protegida: 0,
+                usuarioid: data.id
+            })
+        }
+
+        return carritoCompras
+
+    } catch (error) {
+        return null
+    }
+}
 
 module.exports = self

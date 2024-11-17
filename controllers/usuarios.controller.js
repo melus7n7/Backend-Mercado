@@ -37,6 +37,7 @@ self.get = async function(req, res, next){
 
 self.create = async function(req, res, next){
     try{
+        console.log(req.body)
         const rolusuario = await rol.findOne({where: {nombre: req.body.rol}})
         const data = await usuario.create({
             id:crypto.randomUUID(),

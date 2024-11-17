@@ -16,9 +16,9 @@ const Authorize = (rol) => {
             const token = authHeader.split(' ')[1]
             const decodedToken = jwt.verify(token, jwtSecret)
             if(rol.split(',').indexOf(decodedToken[ClaimTypes.Role]) == -1){
-                console.log(rol)
                 return next(error)
             }
+            
             req.decodedToken = decodedToken
             var minutosRestantes = (decodedToken.exp - (new Date().getTime()/1000)) / 60
 

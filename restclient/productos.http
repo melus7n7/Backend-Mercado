@@ -6,7 +6,8 @@ Authorization: Bearer {{token}}
 
 ###
 
-GET http://localhost:3000/api/productos/20
+GET http://localhost:3000/api/productos/1
+Authorization: Bearer {{token}}
 
 
 ###
