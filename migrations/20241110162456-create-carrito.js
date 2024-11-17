@@ -13,6 +13,16 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
+      usuarioid: {
+        allowNull: false,
+        type: Sequelize.UUID,
+        references: {
+          model: 'usuario',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

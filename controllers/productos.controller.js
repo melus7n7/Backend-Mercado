@@ -12,9 +12,9 @@ self.productoValidator = [
     body('titulo', `El campo titulo es obligatorio`).not().isEmpty().isLength({ max: 255 }),
     body('descripcion', 'El campo descripcion es obligatorio').not().isEmpty().isLength({ max: 65535 }),
     body('precio', 'El campo precio es obligatorio').not().isEmpty().isDecimal({ force_decimal: false }),
-    body('archivoid')
+    body('archivoId')
         .optional()
-        .isInt().withMessage("El campo archivoid no es válido")
+        .isInt().withMessage("El campo archivoId no es válido")
 ]
 
 self.productoPutValidator = [
@@ -22,9 +22,9 @@ self.productoPutValidator = [
     body('titulo', `El campo titulo es obligatorio`).not().isEmpty().isLength({ max: 255 }),
     body('descripcion', 'El campo descripcion es obligatorio').not().isEmpty().isLength({ max: 65535 }),
     body('precio', 'El campo precio es obligatorio').not().isEmpty().isDecimal({ force_decimal: false }),
-    body('archivoid')
+    body('archivoId')
         .optional()
-        .isInt().withMessage("El campo archivoid no es válido")
+        .isInt().withMessage("El campo archivoId no es válido")
 ]
 
 self.productoCategoriaPostValidator = [
@@ -98,9 +98,9 @@ self.create = async function (req, res, next) {
         const errors = validationResult(req)
         if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
 
-        const archivoid = req.body.archivoid
+        const archivoid = req.body.archivoId
         if (archivoid) {
-            let archivodata = await archivo.findByPk(req.body.archivoid)
+            let archivodata = await archivo.findByPk(archivoid)
             if (!archivodata)
                 return res.status(404).send()
         }
@@ -109,10 +109,10 @@ self.create = async function (req, res, next) {
             titulo: req.body.titulo,
             descripcion: req.body.descripcion,
             precio: req.body.precio,
-            archivoid: archivoid || null
+            archivoid: archivoid
         })
 
-        //req.bitacora("producto.crear", data.id)
+        req.bitacora("producto.crear", data.id)
         res.status(201).json(data)
 
     } catch (error) {
@@ -125,9 +125,9 @@ self.update = async function (req, res, next) {
         const errors = validationResult(req)
         if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
 
-        const archivoid = req.body.archivoid
+        const archivoid = req.body.archivoId
         if (archivoid) {
-            let archivodata = await archivo.findByPk(req.body.archivoid)
+            let archivodata = await archivo.findByPk(archivoid)
             if (!archivodata)
                 return res.status(404).send()
         }
@@ -138,7 +138,7 @@ self.update = async function (req, res, next) {
         if (data[0] === 0)
             return res.status(404).send()
 
-        //req.bitacora("producto.editar", id)
+        req.bitacora("producto.editar", id)
         res.status(204).send()
 
     } catch (error) {
@@ -158,7 +158,7 @@ self.delete = async function (req, res, next) {
 
         data = await producto.destroy({ where: { id: id } })
         if (data === 1) {
-            //req.bitacora("producto.eliminar", id)
+            req.bitacora("producto.eliminar", id)
             return res.status(204).send()
         }
         res.status(404).send()
@@ -180,7 +180,7 @@ self.asignaCategoria = async function (req, res, next) {
 
         await item.addCategoria(itemToAssign)
 
-        //req.bitacora("productocategoria.agregar", `${req.params.id}:${req.body.categoriaid}`)
+        req.bitacora("productocategoria.agregar", `${req.params.id}:${req.body.categoriaid}`)
         res.status(204).send()
 
     } catch (error) {
@@ -201,7 +201,7 @@ self.eliminaCategoria = async function (req, res, next) {
 
         await item.removeCategoria(itemToRemove)
 
-        //req.bitacora("productocategoria.remover", `${req.params.id}:${req.body.categoriaid}`)
+        req.bitacora("productocategoria.remover", `${req.params.id}:${req.body.categoriaid}`)
         res.status(204).send()
 
     } catch (error) {

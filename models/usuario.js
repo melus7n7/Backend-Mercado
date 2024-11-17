@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       usuario.belongsTo(models.rol);
+      usuario.hasOne(models.carrito, { foreignKey: 'carritoid'});
     }
   }
   usuario.init({

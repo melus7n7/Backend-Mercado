@@ -9,19 +9,21 @@ const Authorize = (rol) => {
             const authHeader = req.header('Authorization')
             const error = new Error('acceso denegado')
             error.statusCode = 401
-            if(!authHeader.startsWith('Bearer ')){
+            if(authHeader == null || !authHeader.startsWith('Bearer ')){
                 return next(error);
             }
+
             const token = authHeader.split(' ')[1]
             const decodedToken = jwt.verify(token, jwtSecret)
-            if(rol.split(',').indexOf(decodedToken[ClaimTypes.Role]==-1)){
+            if(rol.split(',').indexOf(decodedToken[ClaimTypes.Role]) == -1){
                 return next(error)
             }
+            
             req.decodedToken = decodedToken
             var minutosRestantes = (decodedToken.exp - (new Date().getTime()/1000)) / 60
 
             if(minutosRestantes<5){
-                var nuevoToken = generaToken(decodedToken[ClaimTypes.Name],decodedToken[ClaimTypes.GivenName],decodedToke[ClaimTypes.Role])
+                var nuevoToken = GeneraToken(decodedToken[ClaimTypes.Name],decodedToken[ClaimTypes.GivenName],decodedToken[ClaimTypes.Role])
                 res.header("Set-Authorization",nuevoToken)
             }
             next()

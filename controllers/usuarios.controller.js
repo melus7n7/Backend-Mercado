@@ -37,13 +37,15 @@ self.get = async function(req, res, next){
 
 self.create = async function(req, res, next){
     try{
+        console.log(req.body)
         const rolusuario = await rol.findOne({where: {nombre: req.body.rol}})
         const data = await usuario.create({
             id:crypto.randomUUID(),
             email: req.body.email,
             passwordhash: await bcrypt.hash(req.body.password, 10),
             nombre: req.body.nombre,
-            rolid: rolusuario.id
+            rolid: rolusuario.id,
+            protegido: 0
         })
 
         req.bitacora("usuarios.crear", data.email)
