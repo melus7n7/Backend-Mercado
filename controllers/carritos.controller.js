@@ -35,7 +35,7 @@ self.get = async function (req, res, next) {
                 attributes: ['cantidad'],
                 include: {
                     model: producto,
-                    attributes: [['id', 'productoId'], 'titulo', 'precio']
+                    attributes: [['id', 'productoId'], 'titulo', 'precio', ['archivoid', 'archivoId']]
                 }
             }
         })
@@ -69,7 +69,7 @@ self.getDetails = async function (req, res, next) {
         let carritoid = 1
 
         let data = await carritoproducto.findAll({
-            attributes: ['cantidad', 'productoid'],
+            attributes: ['cantidad', ['productoid', 'productoId']],
             where: { productoid: req.params.idProducto, carritoid: carritoid }
         })
 
