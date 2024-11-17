@@ -1,5 +1,5 @@
 const {usuario, rol, Sequelize} = require('../models')
-const bcrypt = require('bcryt')
+const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 
 let self = {}

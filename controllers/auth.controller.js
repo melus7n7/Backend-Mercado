@@ -1,4 +1,4 @@
-const bcrypt = require('bcryt')
+const bcrypt = require('bcrypt')
 const {usuario, rol, Sequelize} = require('../models')
 const {GeneraToken, TiempoRestanteToken} = require('../services/jwttoken.service')
 
