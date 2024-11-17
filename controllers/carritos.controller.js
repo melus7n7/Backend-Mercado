@@ -35,7 +35,7 @@ self.get = async function (req, res, next) {
                 attributes: ['cantidad'],
                 include: {
                     model: producto,
-                    attributes: ['id', 'titulo', 'precio']
+                    attributes: [['id', 'productoId'], 'titulo', 'precio']
                 }
             }
         })
