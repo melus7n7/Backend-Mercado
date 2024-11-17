@@ -43,7 +43,8 @@ self.create = async function(req, res, next){
             email: req.body.email,
             passwordhash: await bcrypt.hash(req.body.password, 10),
             nombre: req.body.nombre,
-            rolid: rolusuario.id
+            rolid: rolusuario.id,
+            protegido: 0
         })
 
         req.bitacora("usuarios.crear", data.email)
