@@ -21,7 +21,8 @@ const TiempoRestanteToken = (req)  => {
         const authHeader = req.header('Authorization')
         const token = authHeader.split(' ')[1]
         const decodedToken = jwt.verify(token,jwtSecret)
-        const time = (decoded.exp -(new Date().getTime()/1000))
+
+        const time = (decodedToken.exp -(new Date().getTime()/1000))
         const minutos = Math.floor(time/60)
         const segundos = Math.floor(time - minutos * 60)
         return "00:" + minutos.toString().padStart(2,"0")+':'+segundos.toString().padStart(2,"0")

@@ -1,5 +1,5 @@
 const multer = require("multer")
-var size = 1000 * 1000 * 10//1000 * 1000 * 10 = 10 MB
+var size = 1000 * 100 //1000 * 100  = 100 KB
 
 const imageFilter = (req,file,cb) => {
     if(file.mimetype.startsWith("image/jpeg") && file.originalname.endsWith(".jpg")){
