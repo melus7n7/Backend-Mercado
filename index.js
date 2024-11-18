@@ -29,6 +29,7 @@ app.use("/api/auth", require('./routes/auth.routes'))
 app.use("/api/archivos", require('./routes/archivos.routes'))
 app.use("/api/carritos", require('./routes/carritos.routes'))
 app.use("/api/bitacora", require('./routes/bitacora.routes'))
+app.use("/api/compras", require('./routes/compras.routes'))
 
 app.get("*", (req, res) => {
     res.status(404).send("Recurso no encontrado");
