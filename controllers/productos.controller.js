@@ -126,15 +126,19 @@ self.update = async function (req, res, next) {
         if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
 
         const archivoid = req.body.archivoId
-        if (archivoid) {
+        if (archivoid != null) {
             let archivodata = await archivo.findByPk(archivoid)
+            console.log(archivodata)
             if (!archivodata)
                 return res.status(404).send()
         }
 
         let id = req.params.id
-        let body = req.body
-        let data = await producto.update(body, { where: { id: id } })
+        let data = await producto.update(
+            { titulo: req.body.titulo, descripcion: req.body.descripcion,
+                precio: req.body.precio, archivoid: archivoid },
+            { where: { id: id } })
+
         if (data[0] === 0)
             return res.status(404).send()
 

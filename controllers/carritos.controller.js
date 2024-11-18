@@ -140,7 +140,8 @@ self.updateProducto = async function (req, res, next) {
         let cantidad = req.body.cantidad
         let data = await carritoproducto.update({ cantidad: cantidad },
             { where: { productoid: productoid, carritoid: carritoid } })
-        if (data[0] === 0)
+
+        if (data == null)
             return res.status(404).send()
 
         res.status(204).send()
