@@ -4,7 +4,7 @@ const { body, param, validationResult } = require('express-validator')
 let self = {}
 
 self.categoriaValidator = [
-    body('nombre', 'El campo {0} es obligatorio').not().isEmpty()
+    body('nombre', 'El campo nombre es obligatorio').not().isEmpty()
 ]
 
 self.categoriaIdValidator = [
@@ -44,7 +44,7 @@ self.create = async function (req, res, next) {
         let data = await categoria.create({
             nombre: req.body.nombre
         })
-        //req.bitacora("categoria.crear", data.id)
+        req.bitacora("categoria.crear", data.id)
         res.status(201).json(data)
     }catch(error){
         next(error)
