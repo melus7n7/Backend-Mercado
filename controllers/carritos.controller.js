@@ -24,7 +24,6 @@ self.get = async function (req, res, next) {
         const errors = validationResult(req)
         if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
 
-        //Conseguir por el usuario
         let carritoRecuperado = await obtenerCarritoUsuario(req);
         if (carritoRecuperado == null) {
             return res.status(400).send("No existe el carrito");
