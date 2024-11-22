@@ -69,7 +69,6 @@ self.getDetails = async function (req, res, next) {
         const errors = validationResult(req)
         if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
 
-        //Conseguir por el usuario
         let carritoRecuperado = await obtenerCarritoUsuario(req);
         if (carritoRecuperado == null) {
             return res.status(400).send("No existe el carrito");
@@ -78,7 +77,12 @@ self.getDetails = async function (req, res, next) {
 
         let data = await carritoproducto.findAll({
             attributes: ['cantidad', ['productoid', 'productoId']],
-            where: { productoid: req.params.idProducto, carritoid: carritoid }
+            where: { productoid: req.params.idProducto, carritoid: carritoid },
+            include: {
+                model: producto,
+                as: 'producto',
+                attributes: ['titulo']
+            }
         })
 
         if (data)
