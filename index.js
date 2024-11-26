@@ -41,3 +41,5 @@ app.use(errorhandler)
 app.listen(process.env.SERVER_PORT, () => {
     console.log(`Escuchando en el puerto ${process.env.SERVER_PORT}`);
 })
+
+module.exports = app;

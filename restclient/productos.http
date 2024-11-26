@@ -26,19 +26,21 @@ Content-Type: application/json
 
 ###
 
-PUT http://localhost:3000/api/productos/19
+PUT http://localhost:3000/api/productos/17
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
     "titulo": "Producto prueba editado",
     "descripcion": "Producto prueba descripcion editado",
     "precio": 12.2,
-    "archivoid": 8
+    "archivoId": 1
 }
 
 ###
 
-DELETE http://localhost:3000/api/productos/19
+DELETE http://localhost:3000/api/productos/17
+Authorization: Bearer {{token}}
 
 ###
 

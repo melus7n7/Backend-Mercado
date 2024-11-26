@@ -112,7 +112,7 @@ self.create = async function (req, res, next){
             datos: binario
         })
 
-        //req.bitacora("archivos.crear", data.id)
+        req.bitacora("archivos.crear", data.id)
 
         res.status(201).json({
             id: data.id,
@@ -156,7 +156,7 @@ self.update = async function (req, res, next){
             datos: binario
         }, {where: { id: id }})
 
-        //req.bitacora("archivos.crear", data.id)
+        req.bitacora("archivos.crear", data.id)
 
         if(data[0] === 0)
             return res.status(404).send()
@@ -184,7 +184,7 @@ self.delete = async function (req, res, next){
 
         let data = await archivo.destroy({where: { id: id }})
         if(data === 1){
-            //req.bitacora("archivos.eliminar", id)
+            req.bitacora("archivos.eliminar", id)
             if(!imagen.indb){
                 fs.existsSync("uploads/" + imagen.nombre) && fs.unlinkSync("uploads/" + imagen.nombre)
             }

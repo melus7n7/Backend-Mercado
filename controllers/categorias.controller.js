@@ -4,7 +4,7 @@ const { body, param, validationResult } = require('express-validator')
 let self = {}
 
 self.categoriaValidator = [
-    body('nombre', 'El campo {0} es obligatorio').not().isEmpty()
+    body('nombre', 'El campo nombre es obligatorio').not().isEmpty()
 ]
 
 self.categoriaIdValidator = [
@@ -44,7 +44,7 @@ self.create = async function (req, res, next) {
         let data = await categoria.create({
             nombre: req.body.nombre
         })
-        //req.bitacora("categoria.crear", data.id)
+        req.bitacora("categoria.crear", data.id)
         res.status(201).json(data)
     }catch(error){
         next(error)
@@ -62,7 +62,7 @@ self.update = async function (req, res, next) {
         if(data[0] === 0)
             return res.status(404).send()
 
-        //req.bitacora("categoria.editar", id)
+        req.bitacora("categoria.editar", id)
         res.status(204).send()
     }catch(error){
         next(error)
@@ -84,7 +84,7 @@ self.delete = async function (req, res, next) {
 
         data = await categoria.destroy({where: {id: id}})
         if(data === 1){
-            //req.bitacora("categoria.eliminar", id)
+            req.bitacora("categoria.eliminar", id)
             return res.status(204).send()
         }
         res.status(404).send()
