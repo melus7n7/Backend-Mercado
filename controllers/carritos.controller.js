@@ -28,7 +28,7 @@ self.get = async function (req, res, next) {
         if (carritoRecuperado == null) {
             return res.status(400).send("No existe el carrito");
         }
-        let carritoid = carritoRecuperado.id
+        const carritoid = carritoRecuperado.id
 
         let data = await carrito.findAll({
             attributes: [['id', 'carritoId']],
@@ -39,12 +39,14 @@ self.get = async function (req, res, next) {
                 attributes: ['cantidad'],
                 include: {
                     model: producto,
-                    attributes: [['id', 'productoId'], 'titulo', 'precio', ['archivoid', 'archivoId']]
+                    attributes: [['id', 'productoId'], 'titulo', 'precio', ['archivoid', 'archivoId'], 'cantidadDisponible']
                 }
             }
         })
 
         if (data && data[0] && data[0].carritoproducto) {
+            await validarCantidadActual(data[0].carritoproducto, carritoid);
+
             let totalCompra = 0;
             data[0].carritoproducto.forEach(item => {
                 if (item.producto != null) {
@@ -115,6 +117,16 @@ self.createProducto = async function (req, res, next) {
             return res.status(400).send({ message: "Ya existe el producto en el carrito" })
         }
 
+        const productoEnSistema = await obtenerProductoCantidad(req.body.productoid);
+
+        if (productoEnSistema == null) {
+            return res.status(404).send({ message: "No existe el producto" })
+        }
+
+        if (req.body.cantidad > productoEnSistema.cantidadDisponible) {
+            return res.status(400).send({ message: "No hay suficientes productos para la compra" })
+        }
+
         let data = await carritoproducto.create({
             carritoid: carritoid,
             productoid: req.body.productoid,
@@ -139,8 +151,16 @@ self.updateProducto = async function (req, res, next) {
         }
         let carritoid = carritoRecuperado.id
 
-        let productoid = req.params.idProducto
-        let cantidad = req.body.cantidad
+        const productoEnSistema = await obtenerProductoCantidad(req.params.idProducto);
+        if (productoEnSistema == null) {
+            return res.status(404).send({ message: "No existe el producto" })
+        }
+        if (req.body.cantidad > productoEnSistema.cantidadDisponible) {
+            return res.status(400).send({ message: "No hay suficientes productos para la compra" })
+        }
+
+        const productoid = req.params.idProducto
+        const cantidad = req.body.cantidad
         let data = await carritoproducto.update({ cantidad: cantidad },
             { where: { productoid: productoid, carritoid: carritoid } })
 
@@ -194,11 +214,11 @@ async function obtenerCarritoUsuario(req) {
             raw: true,
             attributes: ['id', 'email']
         })
-        
+
         if (data == null) {
             return null
         }
-        
+
         let carritoCompras = await carrito.findOne({
             where: { usuarioid: data.id },
             raw: true,
@@ -218,5 +238,38 @@ async function obtenerCarritoUsuario(req) {
         return null
     }
 }
+
+async function obtenerProductoCantidad(idProducto) {
+    let data = await producto.findByPk(idProducto, {
+        attributes: ['cantidadDisponible', 'id']
+    })
+    return data
+}
+
+async function validarCantidadActual(data, carritoid){
+    for (let index = 0; index < data.length; index++) {
+        if(data[index].producto != null){
+            let cantidad = data[index].cantidad;
+            const cantidadDisponible = data[index].producto.cantidadDisponible;
+            let productoId = data[index].producto.dataValues.productoId;
+            if(cantidad > cantidadDisponible){
+                let modificacion = await carritoproducto.update(
+                    { cantidad: 1 }, 
+                    {
+                        where: {
+                            productoid: productoId, 
+                            carritoid: carritoid   
+                        }
+                    }
+                );
+                if(modificacion == null){
+                    return null
+                }
+                data[index].cantidad = cantidadDisponible;
+            }
+        }        
+    }
+}
+
 
 module.exports = self

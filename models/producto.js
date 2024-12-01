@@ -37,6 +37,10 @@ module.exports = (sequelize, DataTypes) => {
     archivoid: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    cantidadDisponible: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     }
   }, {
     sequelize,

@@ -77,8 +77,8 @@ self.get = async function (req, res, next){
             return res.status(404).send()
 
         let imagen = data.datos
-        if(!data.indb){
-            imagen = fs.readFileSync("uploads/" + data.nombre)
+        if(!imagen){
+            return res.status(404).send()
         }
         
         res.status(200).contentType(data.mime).send(imagen)
@@ -92,18 +92,12 @@ self.create = async function (req, res, next){
         const errors = validationResult(req)
         if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
 
-        console.log(req.file)
         if(req.file == undefined) return res.status(400).json('El archivo es obligatorio');
+        if(req.file.buffer == undefined) return res.status(400).json('El archivo es obligatorio');
 
-        let binario = null;
+        let binario = req.file.buffer;
         let indb = false;
         
-        if(process.env.FILES_IN_BD == "true"){
-            binario = fs.readFileSync("uploads/" + req.file.filename)
-            fs.existsSync("uploads/" + req.file.filename) && fs.unlinkSync("uploads/" + req.file.filename)
-            indb = true
-        }
-
         let data = await archivo.create({
             mime: req.file.mimetype,
             indb: indb,
@@ -132,21 +126,16 @@ self.update = async function (req, res, next){
         if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
 
         if(req.file == undefined) return res.status(400).json('El archivo es obligatorio');
+        if(req.file.buffer == undefined) return res.status(400).json('El archivo es obligatorio');
 
         let id = req.params.id
         let image = await archivo.findByPk(id)
         if(!image){
-            fs.existsSync("uploads/" + req.file.filename) && fs.unlinkSync("uploads/" + req.file.filename)
             return res.status(404).send()
         }
 
-        let binario = null;
+        let binario = req.file.buffer;
         let indb = false;
-        if(process.env.FILES_IN_DB == "true"){
-            binario = fs.readFileSync("uploads/" + req.file.filename)
-            fs.existsSync("uploads/" + req.file.filename) && fs.unlinkSync("uploads/" + req.file.filename)
-            indb = true
-        }
 
         let data = await archivo.update({
             mime: req.file.mimetype,
@@ -160,9 +149,6 @@ self.update = async function (req, res, next){
 
         if(data[0] === 0)
             return res.status(404).send()
-
-        if(!image.indb)
-            fs.existsSync("uploads/" + image.nombre) && fs.unlinkSync("uploads/" + image.nombre)
 
         res.status(204).send()
 
@@ -184,11 +170,7 @@ self.delete = async function (req, res, next){
 
         let data = await archivo.destroy({where: { id: id }})
         if(data === 1){
-            req.bitacora("archivos.eliminar", id)
-            if(!imagen.indb){
-                fs.existsSync("uploads/" + imagen.nombre) && fs.unlinkSync("uploads/" + imagen.nombre)
-            }
-                
+            req.bitacora("archivos.eliminar", id)                
             res.status(204).send()    
         }
             

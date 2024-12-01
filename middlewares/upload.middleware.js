@@ -8,19 +8,19 @@ const imageFilter = (req,file,cb) => {
         cb("Solo se permiten imágenes con extensión JPG", false)
     }
 }
-
-var storage = multer.diskStorage({
-    destination: (req,file, cb) => {
-        cb(null, "uploads/")
-    },
-    filename: (req,file,cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`)
-    }
-})
+var storage = multer.memoryStorage()
 
 var uploadFile = multer({ 
     storage: storage, 
     fileFilter: imageFilter,
     limits: {fileSize: size}
 })
-module.exports = uploadFile
+
+const customFilename = (req, res, next) => {
+    if (req.file) {
+        req.file.filename = `${Date.now()}-${req.file.originalname}`;
+    }
+    next();
+};
+
+module.exports = { uploadFile, customFilename };
