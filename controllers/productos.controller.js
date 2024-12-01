@@ -13,8 +13,10 @@ self.productoValidator = [
     body('descripcion', 'El campo descripcion es obligatorio').not().isEmpty().isLength({ max: 65535 }),
     body('precio', 'El campo precio es obligatorio').not().isEmpty().isDecimal({ force_decimal: false }),
     body('archivoId')
-        .optional()
-        .isInt().withMessage("El campo archivoId no es válido")
+        .optional({ nullable: true })
+        .isInt().withMessage("El campo archivoId no es válido"),
+    body('cantidadDisponible')
+        .isInt().withMessage("El campo cantidadDisponible no es válido")
 ]
 
 self.productoPutValidator = [
@@ -23,8 +25,10 @@ self.productoPutValidator = [
     body('descripcion', 'El campo descripcion es obligatorio').not().isEmpty().isLength({ max: 65535 }),
     body('precio', 'El campo precio es obligatorio').not().isEmpty().isDecimal({ force_decimal: false }),
     body('archivoId')
-        .optional()
-        .isInt().withMessage("El campo archivoId no es válido")
+        .optional({ nullable: true })
+        .isInt().withMessage("El campo archivoId no es válido"),
+    body('cantidadDisponible')
+        .isInt().withMessage("El campo cantidadDisponible no es válido")
 ]
 
 self.productoCategoriaPostValidator = [
@@ -50,7 +54,7 @@ self.getAll = async function (req, res, next) {
 
         let data = await producto.findAll({
             where: filters,
-            attributes: [['id', 'productoId'], 'titulo', 'descripcion', 'precio', 'archivoid'],
+            attributes: [['id', 'productoId'], 'titulo', 'descripcion', 'precio', 'archivoid', 'cantidadDisponible'],
             include: {
                 model: categoria,
                 as: 'categorias',
@@ -74,7 +78,7 @@ self.get = async function (req, res, next) {
 
         let id = req.params.id
         let data = await producto.findByPk(id, {
-            attributes: [['id', 'productoId'], 'titulo', 'descripcion', 'precio', 'archivoid'],
+            attributes: [['id', 'productoId'], 'titulo', 'descripcion', 'precio', 'archivoid', 'cantidadDisponible'],
             include: {
                 model: categoria,
                 as: 'categorias',
@@ -109,7 +113,8 @@ self.create = async function (req, res, next) {
             titulo: req.body.titulo,
             descripcion: req.body.descripcion,
             precio: req.body.precio,
-            archivoid: archivoid
+            archivoid: archivoid,
+            cantidadDisponible: req.body.cantidadDisponible
         })
 
         req.bitacora("producto.crear", data.id)
@@ -135,8 +140,10 @@ self.update = async function (req, res, next) {
 
         let id = req.params.id
         let data = await producto.update(
-            { titulo: req.body.titulo, descripcion: req.body.descripcion,
-                precio: req.body.precio, archivoid: archivoid },
+            {
+                titulo: req.body.titulo, descripcion: req.body.descripcion,
+                precio: req.body.precio, archivoid: archivoid, cantidadDisponible: req.body.cantidadDisponible
+            },
             { where: { id: id } })
 
         if (data[0] === 0)
