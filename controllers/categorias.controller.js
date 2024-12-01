@@ -4,7 +4,7 @@ const { body, param, validationResult } = require('express-validator')
 let self = {}
 
 self.categoriaValidator = [
-    body('nombre', 'El campo nombre es obligatorio').not().isEmpty()
+    body('nombre', 'El campo nombre es obligatorio').not().isEmpty().isLength({ max: 255 })
 ]
 
 self.categoriaIdValidator = [
