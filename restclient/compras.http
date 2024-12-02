@@ -1,4 +1,4 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoicGF0aXRvQHV2Lm14IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZ2l2ZW5uYW1lIjoiVXN1YXJpbyBwYXRpdG8iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJVc3VhcmlvIiwiaXNzIjoiU2Vydmlkb3JGZWlKV1QiLCJhdWQiOiJDbGllbnRGZWlKV1QiLCJpYXQiOjE3MzE4MjUyNzQsImV4cCI6MTczMTgyNjQ3NH0.2CkqqA3eZe0g92TmT-oQFntXyFg9XrieCrotj4CnfvE
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoicGF0aXRvQHV2Lm14IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZ2l2ZW5uYW1lIjoiVXN1YXJpbyBwYXRpdG8iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJVc3VhcmlvIiwiaXNzIjoiU2Vydmlkb3JGZWlKV1QiLCJhdWQiOiJDbGllbnRGZWlKV1QiLCJpYXQiOjE3MzMxMjE0NjMsImV4cCI6MTczMzEyMjY2M30.txw_FeiTzKtsrPl27wi0u55b5Ojhq9cSJ2IucKZFAh4
 
 
 GET http://localhost:3000/api/compras
@@ -10,3 +10,112 @@ GET http://localhost:3000/api/compras/1
 Authorization: Bearer {{token}}
 
 ###
+
+POST http://localhost:3000/api/compras
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "productos": [
+        {
+            "productoid": 10000,
+            "cantidad": 1
+        },
+        {
+            "productoid": 2,
+            "cantidad": 2
+        },
+        {
+            "productoid": 3,
+            "cantidad": 3
+        }
+    ]
+}
+
+###
+
+POST http://localhost:3000/api/compras
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+}
+
+###
+
+POST http://localhost:3000/api/compras
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "productos": [
+    ]
+}
+
+###
+
+POST http://localhost:3000/api/compras
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "productos": [
+        {}
+    ]
+}
+
+###
+
+POST http://localhost:3000/api/compras
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "productos": [
+        {
+            "productoid": 1
+        }
+    ]
+}
+
+###
+
+POST http://localhost:3000/api/compras
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "productos": [
+        {
+            "cantidad": 1
+        }
+    ]
+}
+
+###
+
+POST http://localhost:3000/api/compras
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "productos": [
+        {
+            "productoid": "1a"
+        }
+    ]
+}
+
+###
+
+POST http://localhost:3000/api/compras
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "productos": [
+        {
+            "cantidad": "1a"
+        }
+    ]
+}
