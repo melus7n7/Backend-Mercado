@@ -18,7 +18,7 @@ Content-Type: application/json
 
 {
     "titulo": "Producto prueba",
-    "descripcion": "Producto prueba descripcion",
+    "descripcion": "Producto prueba ",
     "precio": 12.2,
     "archivoId": 1,
     "cantidadDisponible": 0
@@ -27,7 +27,7 @@ Content-Type: application/json
 
 ###
 
-PUT http://localhost:3000/api/productos/16
+PUT http://localhost:3000/api/productos/20
 Authorization: Bearer {{token}}
 Content-Type: application/json
 

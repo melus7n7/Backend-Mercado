@@ -1,11 +1,11 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZ3ZlcmFAdXYubXgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9naXZlbm5hbWUiOiJHdWlsbGVybW8gVmVyYSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluaXN0cmFkb3IiLCJpc3MiOiJTZXJ2aWRvckZlaUpXVCIsImF1ZCI6IkNsaWVudEZlaUpXVCIsImlhdCI6MTczMjIxMjAyMCwiZXhwIjoxNzMyMjEzMjIwfQ.Or8uSAxcZsIJmuHVhmH4oEGxLYHFf2F2teBFv6TawpI
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZ3ZlcmFAdXYubXgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9naXZlbm5hbWUiOiJHdWlsbGVybW8gVmVyYSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluaXN0cmFkb3IiLCJpc3MiOiJTZXJ2aWRvckZlaUpXVCIsImF1ZCI6IkNsaWVudEZlaUpXVCIsImlhdCI6MTczMzA4MDc1NSwiZXhwIjoxNzMzMDgxOTU1fQ.P0GDkQZikH_G4GrnjAK6QgiajHBuARDNxN5QIjnEmPA
 
 GET http://localhost:3000/api/categorias
 Authorization: Bearer {{token}}
 
 ###
 
-GET http://localhost:3000/api/categorias/1
+GET http://localhost:3000/api/categorias/2
 Authorization: Bearer {{token}}
 
 ###
@@ -15,19 +15,21 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "nombre": "Categoria de prueba"
+    "nombre": "Nueva categoría"
 }
 
 
 ###
 
-PUT http://localhost:3000/api/categorias/17
+PUT http://localhost:3000/api/categorias/16
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "nombre": "Categoria de prueba editada"
+    "nombre": "prueba modificada"
 }
 
 ###
 
-DELETE http://localhost:3000/api/categorias/17
+DELETE http://localhost:3000/api/categorias/16
+Authorization: Bearer {{token}}

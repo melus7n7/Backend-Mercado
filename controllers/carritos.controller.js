@@ -11,12 +11,12 @@ self.carritoIDProductoValidator = [
 
 self.carritoBodyValidator = [
     body('productoid', 'Es obligatorio el ID del producto').not().isEmpty().isInt(),
-    body('cantidad', 'Es obligatorio el ID del producto').not().isEmpty().isInt({ min: 1, max: 100 }),
+    body('cantidad', 'La cantidad no es válida').not().isEmpty().isInt({ min: 1, max: 10 }),
 ]
 
 self.carritoPutValidator = [
     param('idProducto', 'Es obligatorio el ID del producto').not().isEmpty().isInt(),
-    body('cantidad', 'Es obligatorio el ID del producto').not().isEmpty().isInt({ min: 1, max: 100 }),
+    body('cantidad', 'La cantidad no es válida').not().isEmpty().isInt({ min: 1, max: 10 }),
 ]
 
 self.get = async function (req, res, next) {
@@ -87,7 +87,7 @@ self.getDetails = async function (req, res, next) {
             }
         })
 
-        if (data)
+        if (data[0] != null)
             res.status(200).json(data)
         else
             res.status(404).send()
@@ -164,7 +164,7 @@ self.updateProducto = async function (req, res, next) {
         let data = await carritoproducto.update({ cantidad: cantidad },
             { where: { productoid: productoid, carritoid: carritoid } })
 
-        if (data == null)
+        if (data[0] == 0)
             return res.status(404).send()
 
         res.status(204).send()
@@ -186,7 +186,7 @@ self.deleteProducto = async function (req, res, next) {
         let carritoid = carritoRecuperado.id
 
         let item = await producto.findByPk(req.params.idProducto)
-        if (!item) return res.status(404).send()
+        if (item[0] == null) return res.status(404).send()
 
         await carritoproducto.destroy({
             where: {
