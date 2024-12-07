@@ -5,7 +5,6 @@ const ClaimTypes = require('../config/claimtypes')
 const errorHandler = (err,req,res,next) => {
     let mensaje = 'No se ha podido procesar la petición. Inténtelo nuevamente más tarde.'
     const statusCode = err.statusCode || 500
-
     const ip = requestIp.getClientIp(req)
 
     let email = "Anónimo"

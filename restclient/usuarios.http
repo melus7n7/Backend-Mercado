@@ -1,4 +1,4 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZ3ZlcmFAdXYubXgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9naXZlbm5hbWUiOiJHdWlsbGVybW8gVmVyYSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluaXN0cmFkb3IiLCJpc3MiOiJTZXJ2aWRvckZlaUpXVCIsImF1ZCI6IkNsaWVudEZlaUpXVCIsImlhdCI6MTczMTg4NzQ2OCwiZXhwIjoxNzMxODg4NjY4fQ.aeLUpR_xM8IrLoDpkOSwsX8AEwoxdfuaGB-4JYYugzA
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZ3ZlcmFAdXYubXgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9naXZlbm5hbWUiOiJHdWlsbGVybW8gVmVyYSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluaXN0cmFkb3IiLCJpc3MiOiJTZXJ2aWRvckZlaUpXVCIsImF1ZCI6IkNsaWVudEZlaUpXVCIsImlhdCI6MTczMzE0NDUxMywiZXhwIjoxNzMzMTQ1NzEzfQ.jBfWnMYalscslQO69VBoMUgwLgR_jkvnkz6XUN2o-xg
 
 GET http://localhost:3000/api/usuarios
 Authorization: Bearer {{token}}
@@ -15,9 +15,45 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "email": "sulem477@gmail",
+    "email": "admin4@gmail",
     "password": "patito",
     "nombre": "melus",
     "protegido": 0,
     "rol": "Usuario"
 }
+
+###
+POST http://localhost:3000/api/usuarios
+Content-Type: application/json
+
+{
+    "email": "cliente4@gmail",
+    "password": "patito",
+    "nombre": "melus",
+    "protegido": 0,
+    "rol": "Usuario"
+}
+###
+POST http://localhost:3000/api/usuarios
+Content-Type: application/json
+
+{
+    "email": "correoNuevo2@gmail.com",
+    "password": "patitO1!",
+    "nombre": "melus",
+    "protegido": 0
+}
+
+### No Sale
+PUT http://localhost:3000/api/usuarios
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "nombre": "melus",
+    "password": "patitO1!"
+}
+
+###ERROR 500
+DELETE http://localhost:3000/api/usuarios/sulem477@gmail.com
+Authorization: Bearer {{token}}
