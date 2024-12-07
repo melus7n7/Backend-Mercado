@@ -23,7 +23,7 @@ self.getAll = async function (req, res, next) {
 self.get = async function (req, res, next) {
     try{
         const errors = validationResult(req)
-        if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
+        if(!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let id = req.params.id
         let data = await categoria.findByPk(id, { attributes: [['id', 'categoriaId'], 'nombre', 'protegida']})
@@ -39,7 +39,7 @@ self.get = async function (req, res, next) {
 self.create = async function (req, res, next) {
     try{
         const errors = validationResult(req)
-        if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
+        if(!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let data = await categoria.create({
             nombre: req.body.nombre
@@ -54,7 +54,7 @@ self.create = async function (req, res, next) {
 self.update = async function (req, res, next) {
     try{
         const errors = validationResult(req)
-        if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
+        if(!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let id = req.params.id
         let body = req.body
@@ -72,7 +72,7 @@ self.update = async function (req, res, next) {
 self.delete = async function (req, res, next) {
     try{
         const errors = validationResult(req)
-        if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
+        if(!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         const id = req.params.id
         let data = await categoria.findByPk(id)
