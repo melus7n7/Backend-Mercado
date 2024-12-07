@@ -186,7 +186,7 @@ self.deleteProducto = async function (req, res, next) {
         let carritoid = carritoRecuperado.id
 
         let item = await producto.findByPk(req.params.idProducto)
-        if (item[0] == null) return res.status(404).send()
+        if (item == null) return res.status(404).send()
 
         await carritoproducto.destroy({
             where: {
