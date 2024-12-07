@@ -114,7 +114,7 @@ self.createProducto = async function (req, res, next) {
         })
 
         if (carritoprevio[0] != null) {
-            return res.status(400).send({ message: "Ya existe el producto en el carrito" })
+            return res.status(409).send({ message: "Ya existe el producto en el carrito" })
         }
 
         const productoEnSistema = await obtenerProductoCantidad(req.body.productoid);
