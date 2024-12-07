@@ -1,4 +1,4 @@
-const { compraproducto, compra, usuario, rol, producto } = require('../models')
+const { compraproducto, compra, usuario, rol, producto, carrito, carritoproducto } = require('../models')
 const { body, param, validationResult } = require('express-validator')
 const { Sequelize } = require('sequelize');
 const ClaimTypes = require('../config/claimtypes')
@@ -28,7 +28,7 @@ self.compraValidator = [
                     throw new Error(`Debe tener una cantidad número entero mayor o igual a 1`);
                 }
             });
-            return true; 
+            return true;
         })
 ];
 
@@ -173,12 +173,10 @@ async function obtenerproducto(item) {
 self.create = async function (req, res, next) {
     let transaccion;
     try {
-        const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors));
         //Recuperar usuario
         let decodedToken = req.decodedToken;
         if (decodedToken == null || decodedToken[ClaimTypes.Name] == null) {
-            throw new Error();
+            return res.status(404).send();
         }
         const usuarioRecuperado = await usuario.findOne({
             where: { email: decodedToken[ClaimTypes.Name] },
@@ -186,17 +184,38 @@ self.create = async function (req, res, next) {
             attributes: ['id', 'email']
         })
         if (usuarioRecuperado == null) {
-            res.status(404).send()
+            return res.status(404).send();
         }
         transaccion = await sequelize.transaction();
+
+        let carritoCompras = await carrito.findOne({
+            where: { usuarioid: usuarioRecuperado.id },
+            raw: true,
+            attributes: ['id']
+        })
+
+        if (carritoCompras == null) {
+            return res.status(404).send();
+        }
+
+        let carritoProductos = await carritoproducto.findAll({
+            where: { carritoid: carritoCompras.id },
+            raw: true,
+            attributes: ['productoid','cantidad']
+        })
+
+
         //Actualizar
-        for (let productos of req.body.productos) {
+        for (let productos of carritoProductos) {
             //Recuperar si existen
             let productoRecuperado = await producto.findOne({
                 where: { id: productos.productoid },
                 raw: true,
                 attributes: ['id', 'precio', 'cantidadDisponible']
             })
+            if (productoRecuperado == null) {
+                return res.status(404).send();
+            }
             //Actualizar
             let nuevaCantidadDisponible = productoRecuperado.cantidadDisponible - productos.cantidad
             if (nuevaCantidadDisponible >= 0) {
@@ -206,7 +225,7 @@ self.create = async function (req, res, next) {
                     { transaction: transaccion }
                 );
                 if (actualizarProducto == null) {
-                    throw new Error()
+                    return res.status(404).send();
                 }
             } else {
                 return res.status(409).send("Sin stock")
@@ -220,14 +239,14 @@ self.create = async function (req, res, next) {
         }, { transaction: transaccion })
         if (compraCreada == null) {
             await transaccion.rollback();
-            throw new Error()
+            return res.status(404).send();
         }
 
         //Realizar CompraProducto
-        for (let productos of req.body.productos) {
+        for (let productos of carritoProductos) {
             //Recuperar CompraProducto        
             if (isNaN(productos.productoid) || productos.productoid == null) {
-                throw new Error()
+                return res.status(404).send();
             }
             let productoRecuperado = await producto.findOne({
                 where: { id: productos.productoid },
@@ -242,11 +261,21 @@ self.create = async function (req, res, next) {
                 precio: productoRecuperado.precio,
             }, { transaction: transaccion })
             if (compraproductoCreado == null) {
-                throw new Error()
+                return res.status(404).send();
             }
         }
+
+        let resultadodelete = await carritoproducto.destroy({
+            where: { carritoid: carritoCompras.id }
+        })
+
+        console.log(resultadodelete)
+        if (resultadodelete == null) {
+            return res.status(404).send();
+        }
+
         await transaccion.commit();
-        return res.status(201).json("Funciono")
+        return res.status(201).json(compraCreada)
     } catch (error) {
         if (transaccion && !transaccion.finished) {
             await transaccion.rollback();
@@ -254,6 +283,46 @@ self.create = async function (req, res, next) {
         next(error)
     }
 }
+
+self.getPersonal = async function (req, res, next) {
+    try {
+        let decodedToken = req.decodedToken;
+        if (decodedToken == null || decodedToken[ClaimTypes.Name] == null) {
+            return res.status(404).send();
+        }
+        const usuarioRecuperado = await usuario.findOne({
+            where: { email: decodedToken[ClaimTypes.Name] },
+            raw: true,
+            attributes: ['id', 'email']
+        })
+        if (usuarioRecuperado == null) {
+            res.status(404).send()
+        }
+
+        let comprasCliente = await compra.findAll({
+            attributes: [
+                'id', 
+                'fechapedido',
+                [sequelize.fn('SUM', sequelize.col('compraproducto.cantidad')), 'totalCantidad'],
+                [sequelize.fn('SUM', sequelize.literal('compraproducto.cantidad * compraproducto.precio')), 'totalPrecio']  // Realizamos la multiplicación con sequelize.literal
+            ],
+            where: { usuarioid: usuarioRecuperado.id },
+            include: [
+                {
+                    model: compraproducto,
+                    as: 'compraproducto',
+                    attributes: [] 
+                }
+            ],
+            group: ['compra.id'], 
+            order: [['fechapedido', 'DESC']]
+        });
+        return res.status(200).json(comprasCliente)
+    } catch (error) {
+        next(error)
+    }
+}
+
 
 
 module.exports = self
