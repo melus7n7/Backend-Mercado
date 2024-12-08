@@ -74,7 +74,7 @@ self.getAll = async function (req, res, next) {
 self.get = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let id = req.params.id
         let data = await producto.findByPk(id, {
@@ -100,7 +100,7 @@ self.get = async function (req, res, next) {
 self.create = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         const archivoid = req.body.archivoId
         if (archivoid) {
@@ -128,7 +128,7 @@ self.create = async function (req, res, next) {
 self.update = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         const archivoid = req.body.archivoId
         if (archivoid != null) {
@@ -160,7 +160,7 @@ self.update = async function (req, res, next) {
 self.delete = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let id = req.params.id
         let data = await producto.findByPk(id)
@@ -181,7 +181,7 @@ self.delete = async function (req, res, next) {
 self.asignaCategoria = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let itemToAssign = await categoria.findByPk(req.body.categoriaid)
         if (!itemToAssign) return res.status(404).send()
@@ -202,7 +202,7 @@ self.asignaCategoria = async function (req, res, next) {
 self.eliminaCategoria = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let itemToRemove = await categoria.findByPk(req.params.categoriaid)
         if (!itemToRemove) return res.status(404).send()

@@ -53,7 +53,7 @@ self.getAll = async function (req, res, next){
 self.getDetalle = async function (req, res, next){
     try{
         const errors = validationResult(req)
-        if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
+        if(!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let id = req.params.id
         let data = await archivo.findByPk(id, {attributes: [['id', 'archivoId'], 'mime', 'indb', 'nombre', 'size']})
@@ -69,7 +69,7 @@ self.getDetalle = async function (req, res, next){
 self.get = async function (req, res, next){
     try{
         const errors = validationResult(req)
-        if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
+        if(!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let id = req.params.id
         let data = await archivo.findByPk(id)
@@ -90,7 +90,7 @@ self.get = async function (req, res, next){
 self.create = async function (req, res, next){
     try{
         const errors = validationResult(req)
-        if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
+        if(!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         if(req.file == undefined) return res.status(400).json('El archivo es obligatorio');
         if(req.file.buffer == undefined) return res.status(400).json('El archivo es obligatorio');
@@ -123,7 +123,7 @@ self.create = async function (req, res, next){
 self.update = async function (req, res, next){
     try{
         const errors = validationResult(req)
-        if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
+        if(!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         if(req.file == undefined) return res.status(400).json('El archivo es obligatorio');
         if(req.file.buffer == undefined) return res.status(400).json('El archivo es obligatorio');
@@ -160,7 +160,7 @@ self.update = async function (req, res, next){
 self.delete = async function (req, res, next){
     try{
         const errors = validationResult(req)
-        if(!errors.isEmpty()) throw new Error(JSON.stringify(errors));
+        if(!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         const id = req.params.id
         let imagen = await archivo.findByPk(id)

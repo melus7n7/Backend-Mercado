@@ -22,7 +22,7 @@ self.carritoPutValidator = [
 self.get = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let carritoRecuperado = await obtenerCarritoUsuario(req);
         if (carritoRecuperado == null) {
@@ -69,7 +69,7 @@ self.get = async function (req, res, next) {
 self.getDetails = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let carritoRecuperado = await obtenerCarritoUsuario(req);
         if (carritoRecuperado == null) {
@@ -100,7 +100,7 @@ self.getDetails = async function (req, res, next) {
 self.createProducto = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let carritoRecuperado = await obtenerCarritoUsuario(req);
         if (carritoRecuperado == null) {
@@ -114,7 +114,7 @@ self.createProducto = async function (req, res, next) {
         })
 
         if (carritoprevio[0] != null) {
-            return res.status(400).send({ message: "Ya existe el producto en el carrito" })
+            return res.status(409).send({ message: "Ya existe el producto en el carrito" })
         }
 
         const productoEnSistema = await obtenerProductoCantidad(req.body.productoid);
@@ -143,7 +143,7 @@ self.createProducto = async function (req, res, next) {
 self.updateProducto = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let carritoRecuperado = await obtenerCarritoUsuario(req);
         if (carritoRecuperado == null) {
@@ -177,7 +177,7 @@ self.updateProducto = async function (req, res, next) {
 self.deleteProducto = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let carritoRecuperado = await obtenerCarritoUsuario(req);
         if (carritoRecuperado == null) {
@@ -186,7 +186,7 @@ self.deleteProducto = async function (req, res, next) {
         let carritoid = carritoRecuperado.id
 
         let item = await producto.findByPk(req.params.idProducto)
-        if (item[0] == null) return res.status(404).send()
+        if (item == null) return res.status(404).send()
 
         await carritoproducto.destroy({
             where: {

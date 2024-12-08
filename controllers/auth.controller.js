@@ -104,7 +104,7 @@ self.tiempo = async function (req,res){
     if(tiempo == null){
         res.status(404).send()
     }
-    res.status(200).send()
+    return res.status(200).send(tiempo)
 }
 
 module.exports = self
