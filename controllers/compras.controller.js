@@ -11,27 +11,6 @@ self.compraIDValidator = [
     param('idCompra', 'Es obligatorio un ID numérico').not().isEmpty().isInt()
 ]
 
-self.compraValidator = [
-    body('productos')
-        .custom((value, { req }) => {
-            if (!Array.isArray(req.body.productos) || req.body.productos.length === 0) {
-                throw new Error('Debe contener al menos un producto');
-            }
-            req.body.productos.forEach((producto, index) => {
-                if (!producto.productoid || !producto.cantidad) {
-                    throw new Error(`Debe tener producto y cantidad validos`);
-                }
-                if (!Number.isInteger(producto.productoid) || producto.productoid < 1) {
-                    throw new Error(`Debe tener un idproducto un número entero mayor o igual a 1`);
-                }
-                if (!Number.isInteger(producto.cantidad) || producto.cantidad < 1) {
-                    throw new Error(`Debe tener una cantidad número entero mayor o igual a 1`);
-                }
-            });
-            return true;
-        })
-];
-
 
 self.get = async function (req, res, next) {
     try {
@@ -195,15 +174,20 @@ self.create = async function (req, res, next) {
         })
 
         if (carritoCompras == null) {
+            await transaccion.rollback();
             return res.status(404).send();
         }
 
         let carritoProductos = await carritoproducto.findAll({
             where: { carritoid: carritoCompras.id },
             raw: true,
-            attributes: ['productoid','cantidad']
+            attributes: ['productoid', 'cantidad']
         })
 
+        if (carritoProductos == null || carritoProductos.length === 0) {
+            await transaccion.rollback();
+            return res.status(404).send("Carrito vacio");
+        }
 
         //Actualizar
         for (let productos of carritoProductos) {
@@ -214,6 +198,7 @@ self.create = async function (req, res, next) {
                 attributes: ['id', 'precio', 'cantidadDisponible']
             })
             if (productoRecuperado == null) {
+                await transaccion.rollback();
                 return res.status(404).send();
             }
             //Actualizar
@@ -225,9 +210,11 @@ self.create = async function (req, res, next) {
                     { transaction: transaccion }
                 );
                 if (actualizarProducto == null) {
+                    await transaccion.rollback();
                     return res.status(404).send();
                 }
             } else {
+                await transaccion.rollback();
                 return res.status(409).send("Sin stock")
             }
         }
@@ -244,24 +231,28 @@ self.create = async function (req, res, next) {
 
         //Realizar CompraProducto
         for (let productos of carritoProductos) {
-            //Recuperar CompraProducto        
-            if (isNaN(productos.productoid) || productos.productoid == null) {
-                return res.status(404).send();
-            }
-            let productoRecuperado = await producto.findOne({
-                where: { id: productos.productoid },
-                raw: true,
-                attributes: ['id', 'precio', 'cantidadDisponible']
-            })
-            //Crear CompraProducto  
-            let compraproductoCreado = await compraproducto.create({
-                productoid: productoRecuperado.id,
-                compraid: compraCreada.id,
-                cantidad: productos.cantidad,
-                precio: productoRecuperado.precio,
-            }, { transaction: transaccion })
-            if (compraproductoCreado == null) {
-                return res.status(404).send();
+            if (productos.cantidad != 0) {
+                //Recuperar CompraProducto        
+                if (isNaN(productos.productoid) || productos.productoid == null) {
+                    await transaccion.rollback();
+                    return res.status(404).send();
+                }
+                let productoRecuperado = await producto.findOne({
+                    where: { id: productos.productoid },
+                    raw: true,
+                    attributes: ['id', 'precio', 'cantidadDisponible']
+                })
+                //Crear CompraProducto  
+                let compraproductoCreado = await compraproducto.create({
+                    productoid: productoRecuperado.id,
+                    compraid: compraCreada.id,
+                    cantidad: productos.cantidad,
+                    precio: productoRecuperado.precio,
+                }, { transaction: transaccion })
+                if (compraproductoCreado == null) {
+                    await transaccion.rollback();
+                    return res.status(404).send();
+                }
             }
         }
 
@@ -301,7 +292,7 @@ self.getPersonal = async function (req, res, next) {
 
         let comprasCliente = await compra.findAll({
             attributes: [
-                'id', 
+                'id',
                 'fechapedido',
                 [sequelize.fn('SUM', sequelize.col('compraproducto.cantidad')), 'totalCantidad'],
                 [sequelize.fn('SUM', sequelize.literal('compraproducto.cantidad * compraproducto.precio')), 'totalPrecio']  // Realizamos la multiplicación con sequelize.literal
@@ -311,12 +302,15 @@ self.getPersonal = async function (req, res, next) {
                 {
                     model: compraproducto,
                     as: 'compraproducto',
-                    attributes: [] 
+                    attributes: []
                 }
             ],
-            group: ['compra.id'], 
+            group: ['compra.id'],
             order: [['fechapedido', 'DESC']]
         });
+        if(comprasCliente.length == 0){
+            return res.status(404).send("Compras vacio")
+        }
         return res.status(200).json(comprasCliente)
     } catch (error) {
         next(error)

@@ -19,19 +19,17 @@ describe("GET /api/compras/personal", function () {
         });
     });
 
-});
+    test("TestObtenerComprasPersonalVacio", async () => {
+        const response = await request(app).get("/api/compras/personal").set('Authorization', `Bearer ${TOKEN}`).send();
+        expect(response.status).toBe(404);
+    });
 
+});
 
 describe("POST /api/compras", function () {
 
     test("TestCrearCompraExito", async () => {
-        const requestBody = {
-            productos: [
-                { productoid: 15, cantidad: 1 },
-                { productoid: 14, cantidad: 2 },
-                { productoid: 13, cantidad: 3 }
-            ]
-        };
+        const requestBody = {};
         const response = await request(app).post("/api/compras").set('Authorization', `Bearer ${TOKEN}`).send(requestBody);
 
         expect(response.status).toBe(201);
@@ -41,38 +39,17 @@ describe("POST /api/compras", function () {
         expect(response.body.fechapedido).toBeDefined(); 
         expect(response.body.usuarioid).toBeDefined(); 
     });
-});
 
-
-describe("POST /api/compras", function () {
-
-    test("TestCompraSinStock", async () => {
-        const requestBody = {
-            productos: [
-                { productoid: 15, cantidad: 10000 },
-                { productoid: 14, cantidad: 2 },
-                { productoid: 13, cantidad: 3 }
-            ]
-        };
+    test("TestCrearCompraVacia", async () => {
+        const requestBody = {};
         const response = await request(app).post("/api/compras").set('Authorization', `Bearer ${TOKEN}`).send(requestBody);
-
-        expect(response.status).toBe(409);
-    });
-});
-
-
-describe("POST /api/compras", function () {
-
-    test("TestCompraProductoInexistente", async () => {
-        const requestBody = {
-            productos: [
-                { productoid: 150000, cantidad: 1 },
-                { productoid: 14, cantidad: 2 },
-                { productoid: 13, cantidad: 3 }
-            ]
-        };
-        const response = await request(app).post("/api/compras").set('Authorization', `Bearer ${TOKEN}`).send(requestBody);
-
         expect(response.status).toBe(404);
+    });
+
+    
+    test.only("TestCrearCompraSinStock", async () => {
+        const requestBody = {};
+        const response = await request(app).post("/api/compras").set('Authorization', `Bearer ${TOKEN}`).send(requestBody);
+        expect(response.status).toBe(409);
     });
 });
