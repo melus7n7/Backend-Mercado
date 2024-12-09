@@ -152,7 +152,6 @@ async function obtenerproducto(item) {
 self.create = async function (req, res, next) {
     let transaccion;
     try {
-        //Recuperar usuario
         let decodedToken = req.decodedToken;
         if (decodedToken == null || decodedToken[ClaimTypes.Name] == null) {
             return res.status(404).send();
@@ -189,9 +188,7 @@ self.create = async function (req, res, next) {
             return res.status(404).send("Carrito vacio");
         }
 
-        //Actualizar
         for (let productos of carritoProductos) {
-            //Recuperar si existen
             let productoRecuperado = await producto.findOne({
                 where: { id: productos.productoid },
                 raw: true,
@@ -201,7 +198,6 @@ self.create = async function (req, res, next) {
                 await transaccion.rollback();
                 return res.status(404).send();
             }
-            //Actualizar
             let nuevaCantidadDisponible = productoRecuperado.cantidadDisponible - productos.cantidad
             if (nuevaCantidadDisponible >= 0) {
                 let actualizarProducto = await producto.update(
@@ -219,7 +215,6 @@ self.create = async function (req, res, next) {
             }
         }
 
-        //Realizar Compra
         let compraCreada = await compra.create({
             fechapedido: new Date(),
             usuarioid: usuarioRecuperado.id
@@ -229,10 +224,8 @@ self.create = async function (req, res, next) {
             return res.status(404).send();
         }
 
-        //Realizar CompraProducto
         for (let productos of carritoProductos) {
             if (productos.cantidad != 0) {
-                //Recuperar CompraProducto        
                 if (isNaN(productos.productoid) || productos.productoid == null) {
                     await transaccion.rollback();
                     return res.status(404).send();
@@ -242,7 +235,10 @@ self.create = async function (req, res, next) {
                     raw: true,
                     attributes: ['id', 'precio', 'cantidadDisponible']
                 })
-                //Crear CompraProducto  
+                if (productoRecuperado == null) {
+                    await transaccion.rollback();
+                    return res.status(409).send();
+                }
                 let compraproductoCreado = await compraproducto.create({
                     productoid: productoRecuperado.id,
                     compraid: compraCreada.id,
@@ -260,7 +256,6 @@ self.create = async function (req, res, next) {
             where: { carritoid: carritoCompras.id }
         })
 
-        console.log(resultadodelete)
         if (resultadodelete == null) {
             return res.status(404).send();
         }
@@ -295,7 +290,7 @@ self.getPersonal = async function (req, res, next) {
                 'id',
                 'fechapedido',
                 [sequelize.fn('SUM', sequelize.col('compraproducto.cantidad')), 'totalCantidad'],
-                [sequelize.fn('SUM', sequelize.literal('compraproducto.cantidad * compraproducto.precio')), 'totalPrecio']  // Realizamos la multiplicación con sequelize.literal
+                [sequelize.fn('SUM', sequelize.literal('compraproducto.cantidad * compraproducto.precio')), 'totalPrecio']
             ],
             where: { usuarioid: usuarioRecuperado.id },
             include: [
@@ -308,7 +303,7 @@ self.getPersonal = async function (req, res, next) {
             group: ['compra.id'],
             order: [['fechapedido', 'DESC']]
         });
-        if(comprasCliente.length == 0){
+        if (comprasCliente.length == 0) {
             return res.status(404).send("Compras vacio")
         }
         return res.status(200).json(comprasCliente)
@@ -317,6 +312,63 @@ self.getPersonal = async function (req, res, next) {
     }
 }
 
+self.getPersonalDetails = async function (req, res, next) {
+    try {
+        let decodedToken = req.decodedToken;
+        if (decodedToken == null || decodedToken[ClaimTypes.Name] == null) {
+            return res.status(404).send();
+        }
+        const usuarioRecuperado = await usuario.findOne({
+            where: { email: decodedToken[ClaimTypes.Name] },
+            raw: true,
+            attributes: ['id', 'email']
+        })
+        console.log("req.params.id" + req.params.id)
+        if (usuarioRecuperado == null) {
+            return res.status(404).send();
+        }
+        let verificar = await compra.findOne({
+            where: { id: req.params.id },
+            raw: true,
+            attributes: ['usuarioid']
+        });
+        if (verificar == null) {
+            return res.status(404).send();
+        }
 
+        if (verificar.usuarioid != usuarioRecuperado.id) {
+            return res.status(401).send();
+        }
+        let comprasproducto = await compraproducto.findAll({
+            where: { compraid: req.params.id },
+            raw: true,
+            attributes: ['productoid', 'cantidad']
+        });
+        if (comprasproducto.length == 0) {
+            return res.status(404).send();
+        }
+        let productosList = []
+        for (let compra of comprasproducto) {
+            let productos = await producto.findOne({
+                attributes: ['titulo', 'descripcion', 'precio'],
+                where: { id: compra.productoid }
+            });
+            if (producto) {
+                const productoConCantidad = {
+                    titulo: productos.titulo,
+                    descripcion: productos.descripcion,
+                    precio: productos.precio,
+                    cantidad: compra.cantidad
+                };
+
+                productosList.push(productoConCantidad);
+            }
+        }
+
+        return res.status(200).json(productosList)
+    } catch (error) {
+        next(error)
+    }
+}
 
 module.exports = self
