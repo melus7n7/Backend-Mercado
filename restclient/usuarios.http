@@ -1,4 +1,4 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoicGF0aXRvQHV2Lm14IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZ2l2ZW5uYW1lIjoiVXN1YXJpbyBwYXRpdG8iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJVc3VhcmlvIiwiaXNzIjoiU2Vydmlkb3JGZWlKV1QiLCJhdWQiOiJDbGllbnRGZWlKV1QiLCJpYXQiOjE3MzM3MjA2ODUsImV4cCI6MTczMzcyMTg4NX0.bI5IpToaN3fZx6HCiT5pdtutsznMBRaJqSHi5cK5L6k
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZ3ZlcmFAdXYubXgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9naXZlbm5hbWUiOiJHdWlsbGVybW8iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbmlzdHJhZG9yIiwiaXNzIjoiU2Vydmlkb3JGZWlKV1QiLCJhdWQiOiJDbGllbnRGZWlKV1QiLCJpYXQiOjE3MzM3ODgxNTAsImV4cCI6MTczMzc4OTM1MH0.r-q4ketgdNaWmlBjoIE0J-oZfW4mA8lYBBiHiygYIvE
 
 GET http://localhost:3000/api/usuarios
 Authorization: Bearer {{token}}
@@ -50,6 +50,14 @@ Content-Type: application/json
     "nombre": "Guillermo Vera"
 }
 
-###ERROR 500
-DELETE http://localhost:3000/api/usuarios/sulem477@gmail.com
+###Cliente
+DELETE http://localhost:3000/api/usuarios/Cliente3000@gmail.com
+Authorization: Bearer {{token}}
+
+###Cliente
+DELETE http://localhost:3000/api/usuarios/Cliente3000
+Authorization: Bearer {{token}}
+
+###Admin
+DELETE http://localhost:3000/api/usuarios/ejemplo2@uv.mx
 Authorization: Bearer {{token}}

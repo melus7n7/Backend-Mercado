@@ -6,6 +6,6 @@ router.get('/', Authorize('Administrador'), usuarios.getAll)
 router.get('/:email', Authorize('Administrador'), usuarios.get)
 router.post('/', usuarios.create)
 router.put('/:email', Authorize('Administrador'), usuarios.usuarioPutValidator, usuarios.update)
-router.delete('/:email', Authorize('Administrador'), usuarios.delete)
+router.delete('/:email', Authorize('Administrador'), usuarios.usuarioIDValidator, usuarios.delete)
 
 module.exports = router

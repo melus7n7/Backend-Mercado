@@ -1,4 +1,4 @@
-const { usuario, rol, Sequelize } = require('../models')
+const { usuario, rol,compra, Sequelize } = require('../models')
 const jwtSecret = process.env.JWT_SECRET
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
@@ -18,6 +18,10 @@ self.usuarioPutValidator = [
         .withMessage('El nombre debe ser una cadena de texto')
         .isLength({ min: 1 })
         .withMessage('El nombre debe tener al menos un carácter'),
+];
+
+self.usuarioIDValidator = [
+    param('email').isEmail().withMessage('Debe ser un correo electrónico válido') ,  
 ];
 
 
@@ -110,7 +114,7 @@ self.create = async function (req, res, next) {
                 passwordhash: await bcrypt.hash(req.body.password, 10),
                 nombre: req.body.nombre,
                 rolid: rolusuario.id,
-                protegido: 1
+                protegido: 0
             })
             res.status(201).json({
                 id: data.id,
@@ -157,10 +161,24 @@ self.update = async function (req, res, next) {
 
 self.delete = async function (req, res, next) {
     try {
+        //Comprobar si tiene compras, si tiene compras, entonces conflicto
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
         const email = req.params.email
-        const data = await usuario.findOne({ where: { email: email } })
-        if (data.protegido) {
+    
+        let usuarioRecuperado = await usuario.findOne({ where: { email: email } })
+        if (usuarioRecuperado == null) {
+            return res.status(404).send()
+        }
+        if (usuarioRecuperado.protegido == 1) {
             return res.status(403).send()
+        }
+        let comprasCliente = await compra.findAll({
+            attributes: ['id'],
+            where: { usuarioid: usuarioRecuperado.id }
+        });
+        if (comprasCliente.length > 0) {
+            return res.status(409).send()
         }
         data = await usuario.destroy({ where: { email: email } })
 
@@ -168,7 +186,7 @@ self.delete = async function (req, res, next) {
             //req.bitacora("usuarios.eliminar", email)
             return res.status(204).send()
         }
-        res.status(403).send()
+        res.status(400).send()
     } catch (error) {
         next(error)
     }

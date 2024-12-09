@@ -11,6 +11,9 @@ self.compraIDValidator = [
     param('idCompra', 'Es obligatorio un ID numérico').not().isEmpty().isInt()
 ]
 
+self.personalIdValidator = [
+    param('id', 'Es obligatorio ID').not().isEmpty().isInt()
+]
 
 self.get = async function (req, res, next) {
     try {
@@ -314,6 +317,9 @@ self.getPersonal = async function (req, res, next) {
 
 self.getPersonalDetails = async function (req, res, next) {
     try {
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+
         let decodedToken = req.decodedToken;
         if (decodedToken == null || decodedToken[ClaimTypes.Name] == null) {
             return res.status(404).send();
@@ -323,7 +329,6 @@ self.getPersonalDetails = async function (req, res, next) {
             raw: true,
             attributes: ['id', 'email']
         })
-        console.log("req.params.id" + req.params.id)
         if (usuarioRecuperado == null) {
             return res.status(404).send();
         }
