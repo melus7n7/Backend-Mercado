@@ -77,7 +77,7 @@ self.get = async function (req, res, next) {
 self.getDetails = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let idCompra = req.params.idCompra;
 
@@ -318,7 +318,7 @@ self.getPersonal = async function (req, res, next) {
 self.getPersonalDetails = async function (req, res, next) {
     try {
         const errors = validationResult(req)
-        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
 
         let decodedToken = req.decodedToken;
         if (decodedToken == null || decodedToken[ClaimTypes.Name] == null) {
