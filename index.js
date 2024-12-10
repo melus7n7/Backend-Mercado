@@ -9,7 +9,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
 var corsOptions = {
-    origin: ["http://localhost:8080", "http://localhost:8080"],
+    origin: [process.env.ORIGIN_HTTP, process.env.ORIGIN_HTTPS],
     methods: "GET,PUT,POST,DELETE"
 }
 
@@ -38,8 +38,8 @@ app.get("*", (req, res) => {
 const errorhandler = require("./middlewares/errorhandler.middleware")
 app.use(errorhandler)
 
-app.listen(process.env.SERVER_PORT, () => {
-    console.log(`Escuchando en el puerto ${process.env.SERVER_PORT}`);
+app.listen(process.env.SERVER_PORT,process.env.HOST, () => {
+    console.log(`Escuchando en el puerto ${process.env.SERVER_PORT} la dirección ${process.env.HOST}`);
 })
 
 module.exports = app;

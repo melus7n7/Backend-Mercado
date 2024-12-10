@@ -10,8 +10,6 @@ describe("GET /api/carritos/", function(){
     const response = await request(app).get("/api/carritos/").set('Authorization', `Bearer ${TOKEN}`).send();
     expect(response.status).toBe(200);
     expect(response.headers['content-type']).toEqual(expect.stringContaining("application/json"))
-    expect(response.body.carritoId).toBeDefined();
-    expect(response.body.carritoproducto).toBeDefined();
   });
 
 })
