@@ -1,4 +1,4 @@
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoicGF0aXRvQHV2Lm14IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZ2l2ZW5uYW1lIjoiVXN1YXJpbyBwYXRpdG8iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJVc3VhcmlvIiwiaXNzIjoiU2Vydmlkb3JGZWlKV1QiLCJhdWQiOiJDbGllbnRGZWlKV1QiLCJpYXQiOjE3MzMwOTgwMDAsImV4cCI6MTczMzA5OTIwMH0.M_c0lDCnUS5Q-tWziTlHUs8HD7MbdTXW_0haUUAvfJk
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiZ3ZlcmFAdXYubXgiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9naXZlbm5hbWUiOiJHdWlsbGVybW8gVmVyYSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluaXN0cmFkb3IiLCJpc3MiOiJTZXJ2aWRvckZlaUpXVCIsImF1ZCI6IkNsaWVudEZlaUpXVCIsImlhdCI6MTczMzgwNDQyNCwiZXhwIjoxNzMzODA1NjI0fQ.jOXVb3nrFuCYp24prfQos6chIsMRza0SjTBW-dUzV4k
 
 
 GET http://localhost:3000/api/productos
@@ -6,7 +6,7 @@ Authorization: Bearer {{token}}
 
 ###
 
-GET http://localhost:3000/api/productos/200000
+GET http://localhost:3000/api/productos/1
 Authorization: Bearer {{token}}
 
 
@@ -40,7 +40,7 @@ Content-Type: application/json
 
 ###
 
-DELETE http://localhost:3000/api/productos/17
+DELETE http://localhost:3000/api/productos/1
 Authorization: Bearer {{token}}
 
 ###

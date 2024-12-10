@@ -84,17 +84,23 @@ self.get = async function (req, res, next) {
                 as: 'categorias',
                 attributes: [['id', 'categoriaId'], 'nombre', 'protegida'],
                 through: { attributes: [] }
-            },
-            {
-                model: compraproducto,
-                as: 'compraproducto',
-                where: { productoid : id},
-                attributes: [['productoid', 'productoId']]
             }]
         })
 
-        if (data)
+        if (data) {
+            data.dataValues.compraproducto = [];
+
+            let compras = await compraproducto.findAll({
+                where: { productoid: id }, attributes: [['productoid', 'productoId']]
+            });
+
+            if(compras != null && compras.length > 0){
+                data.dataValues.compraproducto = compras;
+            }
+            
             res.status(200).json(data)
+        }
+
         else
             res.status(404).send()
 
