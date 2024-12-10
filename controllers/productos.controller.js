@@ -1,4 +1,4 @@
-const { producto, categoria, Sequelize, archivo } = require('../models')
+const { producto, categoria, Sequelize, archivo, compraproducto } = require('../models')
 const { body, param, validationResult } = require('express-validator')
 const Op = Sequelize.Op
 
@@ -79,12 +79,18 @@ self.get = async function (req, res, next) {
         let id = req.params.id
         let data = await producto.findByPk(id, {
             attributes: [['id', 'productoId'], 'titulo', 'descripcion', 'precio', 'archivoid', 'cantidadDisponible'],
-            include: {
+            include: [{
                 model: categoria,
                 as: 'categorias',
                 attributes: [['id', 'categoriaId'], 'nombre', 'protegida'],
                 through: { attributes: [] }
-            }
+            },
+            {
+                model: compraproducto,
+                as: 'compraproducto',
+                where: { productoid : id},
+                attributes: [['productoid', 'productoId']]
+            }]
         })
 
         if (data)
@@ -93,6 +99,7 @@ self.get = async function (req, res, next) {
             res.status(404).send()
 
     } catch (error) {
+        console.log(error)
         next(error)
     }
 }
@@ -166,6 +173,14 @@ self.delete = async function (req, res, next) {
         let data = await producto.findByPk(id)
         if (!data)
             return res.status(404).send()
+
+        const comprasDelProducto = await compraproducto.findAll({
+            where: { productoid: id }
+        })
+
+        if (comprasDelProducto.length > 0) {
+            return res.status(409).send("El producto tiene compras relacionadas");
+        }
 
         data = await producto.destroy({ where: { id: id } })
         if (data === 1) {
