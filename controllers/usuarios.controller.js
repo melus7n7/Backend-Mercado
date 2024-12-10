@@ -1,14 +1,29 @@
-const { usuario, rol, Sequelize } = require('../models')
+const { usuario, rol,compra, Sequelize } = require('../models')
 const jwtSecret = process.env.JWT_SECRET
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const crypto = require('crypto')
 const ClaimTypes = require('../config/claimtypes')
 const validator = require('validator');
-
+const { body, param, validationResult } = require('express-validator')
 
 
 let self = {}
+
+self.usuarioPutValidator = [
+    body('nombre', 'El nombre del usuario es obligatorio y debe ser una cadena con al menos un carácter')
+        .not()
+        .isEmpty()
+        .isString()
+        .withMessage('El nombre debe ser una cadena de texto')
+        .isLength({ min: 1 })
+        .withMessage('El nombre debe tener al menos un carácter'),
+];
+
+self.usuarioIDValidator = [
+    param('email').isEmail().withMessage('Debe ser un correo electrónico válido') ,  
+];
+
 
 self.getAll = async function (req, res, next) {
     try {
@@ -49,10 +64,10 @@ self.create = async function (req, res, next) {
         if (emailExistente) {
             return res.status(409).send();
         }
-        if (!validator.isEmail(req.body.email) || !passwordRegex.test(req.body.password)) {
+        if (!validator.isEmail(req.body.email) || !passwordRegex.test(req.body.password) || !req.body.nombre?.trim()) {
             return res.status(422).send();
         }
-        if (!token) {
+        if (token.startsWith("Bearer")) {
             const rolusuario = await rol.findOne({ where: { nombre: "Usuario" } })
             if (rolusuario == null) {
                 return res.status(404).send();
@@ -65,7 +80,6 @@ self.create = async function (req, res, next) {
                 rolid: rolusuario.id,
                 protegido: 0
             })
-            //req.bitacora("usuarios.crear", data.email)
             res.status(201).json({
                 id: data.id,
                 email: data.email,
@@ -76,9 +90,7 @@ self.create = async function (req, res, next) {
             const authHeader = req.header('Authorization')
             const token = authHeader.split(' ')[1]
             const decodedToken = jwt.verify(token, jwtSecret)
-            console.log("decoded");
             if (decodedToken == null || decodedToken[ClaimTypes.Name] == null) {
-                console.log("decoded null");
                 return res.status(404).send();
             }
             const usuarioRecuperado = await usuario.findOne({
@@ -87,7 +99,6 @@ self.create = async function (req, res, next) {
                 attributes: ['protegido']
             })
             if (usuarioRecuperado == null) {
-                console.log("usaurio null");
                 return res.status(404).send();
             }
             if (usuarioRecuperado.protegido != 1) {
@@ -103,9 +114,8 @@ self.create = async function (req, res, next) {
                 passwordhash: await bcrypt.hash(req.body.password, 10),
                 nombre: req.body.nombre,
                 rolid: rolusuario.id,
-                protegido: 1
+                protegido: 0
             })
-            //req.bitacora("usuarios.crear", data.email)
             res.status(201).json({
                 id: data.id,
                 email: data.email,
@@ -118,56 +128,31 @@ self.create = async function (req, res, next) {
     }
 }
 
-//Sin Email, sin protegido, sin password, sin rol
-self.updateCambiado = async function (req, res, next) {
+self.update = async function (req, res, next) {
     try {
-        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
-        if (!passwordRegex.test(req.body.password)) {
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) return res.status(400).send(JSON.stringify(errors));
+        let correo = req.params.email;
+        if (!validator.isEmail(correo)) {
             return res.status(422).send();
         }
-        let decodedToken = req.decodedToken;
         const usuarioRecuperado = await usuario.findOne({
-            where: { email: decodedToken[ClaimTypes.Name] },
+            where: { email: correo },
             raw: true,
             attributes: ['id']
         })
         if (usuarioRecuperado == null) {
-            res.status(404).send()
+            return res.status(404).send()
         }
         const updateData = {};
-        if (req.body.password && req.body.nombre){
-            updateData.nombre = req.body.nombre;
-            updateData.passwordhash = await bcrypt.hash(req.body.password, 10);    
-        }
+        updateData.nombre = req.body.nombre;
         const data = await usuario.update(updateData, {
             where: { id: usuarioRecuperado.id },
-            fields: ['nombre', 'passwordhash'] 
+            fields: ['nombre'] 
         });
         if (data[0] === 0) {
             return res.status(404).send()
         }
-
-        //req.bitacora("usuarios.editar", email)
-        res.status(204).send()
-    } catch (error) {
-        next(error)
-    }
-}
-
-self.update = async function (req, res, next) {
-    try {
-        const email = req.params.email
-        const rolusuario = await rol.findOne({ where: { nombre: req.body.rol } })
-        req.body.rolid = rolusuario.id
-
-        const data = await usuario.update(req.body, {
-            where: { email: email },
-        })
-        if (data[0] === 0) {
-            return res.status(404).send()
-        }
-
-        //req.bitacora("usuarios.editar", email)
         res.status(204).send()
     } catch (error) {
         next(error)
@@ -176,10 +161,24 @@ self.update = async function (req, res, next) {
 
 self.delete = async function (req, res, next) {
     try {
+        //Comprobar si tiene compras, si tiene compras, entonces conflicto
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
         const email = req.params.email
-        const data = await usuario.findOne({ where: { email: email } })
-        if (data.protegido) {
+    
+        let usuarioRecuperado = await usuario.findOne({ where: { email: email } })
+        if (usuarioRecuperado == null) {
+            return res.status(404).send()
+        }
+        if (usuarioRecuperado.protegido == 1) {
             return res.status(403).send()
+        }
+        let comprasCliente = await compra.findAll({
+            attributes: ['id'],
+            where: { usuarioid: usuarioRecuperado.id }
+        });
+        if (comprasCliente.length > 0) {
+            return res.status(409).send()
         }
         data = await usuario.destroy({ where: { email: email } })
 
@@ -187,7 +186,7 @@ self.delete = async function (req, res, next) {
             //req.bitacora("usuarios.eliminar", email)
             return res.status(204).send()
         }
-        res.status(403).send()
+        res.status(400).send()
     } catch (error) {
         next(error)
     }

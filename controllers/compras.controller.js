@@ -11,27 +11,9 @@ self.compraIDValidator = [
     param('idCompra', 'Es obligatorio un ID numérico').not().isEmpty().isInt()
 ]
 
-self.compraValidator = [
-    body('productos')
-        .custom((value, { req }) => {
-            if (!Array.isArray(req.body.productos) || req.body.productos.length === 0) {
-                throw new Error('Debe contener al menos un producto');
-            }
-            req.body.productos.forEach((producto, index) => {
-                if (!producto.productoid || !producto.cantidad) {
-                    throw new Error(`Debe tener producto y cantidad validos`);
-                }
-                if (!Number.isInteger(producto.productoid) || producto.productoid < 1) {
-                    throw new Error(`Debe tener un idproducto un número entero mayor o igual a 1`);
-                }
-                if (!Number.isInteger(producto.cantidad) || producto.cantidad < 1) {
-                    throw new Error(`Debe tener una cantidad número entero mayor o igual a 1`);
-                }
-            });
-            return true;
-        })
-];
-
+self.personalIdValidator = [
+    param('id', 'Es obligatorio ID').not().isEmpty().isInt()
+]
 
 self.get = async function (req, res, next) {
     try {
@@ -173,7 +155,6 @@ async function obtenerproducto(item) {
 self.create = async function (req, res, next) {
     let transaccion;
     try {
-        //Recuperar usuario
         let decodedToken = req.decodedToken;
         if (decodedToken == null || decodedToken[ClaimTypes.Name] == null) {
             return res.status(404).send();
@@ -195,28 +176,31 @@ self.create = async function (req, res, next) {
         })
 
         if (carritoCompras == null) {
+            await transaccion.rollback();
             return res.status(404).send();
         }
 
         let carritoProductos = await carritoproducto.findAll({
             where: { carritoid: carritoCompras.id },
             raw: true,
-            attributes: ['productoid','cantidad']
+            attributes: ['productoid', 'cantidad']
         })
 
+        if (carritoProductos == null || carritoProductos.length === 0) {
+            await transaccion.rollback();
+            return res.status(404).send("Carrito vacio");
+        }
 
-        //Actualizar
         for (let productos of carritoProductos) {
-            //Recuperar si existen
             let productoRecuperado = await producto.findOne({
                 where: { id: productos.productoid },
                 raw: true,
                 attributes: ['id', 'precio', 'cantidadDisponible']
             })
             if (productoRecuperado == null) {
+                await transaccion.rollback();
                 return res.status(404).send();
             }
-            //Actualizar
             let nuevaCantidadDisponible = productoRecuperado.cantidadDisponible - productos.cantidad
             if (nuevaCantidadDisponible >= 0) {
                 let actualizarProducto = await producto.update(
@@ -225,14 +209,15 @@ self.create = async function (req, res, next) {
                     { transaction: transaccion }
                 );
                 if (actualizarProducto == null) {
+                    await transaccion.rollback();
                     return res.status(404).send();
                 }
             } else {
+                await transaccion.rollback();
                 return res.status(409).send("Sin stock")
             }
         }
 
-        //Realizar Compra
         let compraCreada = await compra.create({
             fechapedido: new Date(),
             usuarioid: usuarioRecuperado.id
@@ -242,26 +227,31 @@ self.create = async function (req, res, next) {
             return res.status(404).send();
         }
 
-        //Realizar CompraProducto
         for (let productos of carritoProductos) {
-            //Recuperar CompraProducto        
-            if (isNaN(productos.productoid) || productos.productoid == null) {
-                return res.status(404).send();
-            }
-            let productoRecuperado = await producto.findOne({
-                where: { id: productos.productoid },
-                raw: true,
-                attributes: ['id', 'precio', 'cantidadDisponible']
-            })
-            //Crear CompraProducto  
-            let compraproductoCreado = await compraproducto.create({
-                productoid: productoRecuperado.id,
-                compraid: compraCreada.id,
-                cantidad: productos.cantidad,
-                precio: productoRecuperado.precio,
-            }, { transaction: transaccion })
-            if (compraproductoCreado == null) {
-                return res.status(404).send();
+            if (productos.cantidad != 0) {
+                if (isNaN(productos.productoid) || productos.productoid == null) {
+                    await transaccion.rollback();
+                    return res.status(404).send();
+                }
+                let productoRecuperado = await producto.findOne({
+                    where: { id: productos.productoid },
+                    raw: true,
+                    attributes: ['id', 'precio', 'cantidadDisponible']
+                })
+                if (productoRecuperado == null) {
+                    await transaccion.rollback();
+                    return res.status(409).send();
+                }
+                let compraproductoCreado = await compraproducto.create({
+                    productoid: productoRecuperado.id,
+                    compraid: compraCreada.id,
+                    cantidad: productos.cantidad,
+                    precio: productoRecuperado.precio,
+                }, { transaction: transaccion })
+                if (compraproductoCreado == null) {
+                    await transaccion.rollback();
+                    return res.status(404).send();
+                }
             }
         }
 
@@ -269,7 +259,6 @@ self.create = async function (req, res, next) {
             where: { carritoid: carritoCompras.id }
         })
 
-        console.log(resultadodelete)
         if (resultadodelete == null) {
             return res.status(404).send();
         }
@@ -301,28 +290,90 @@ self.getPersonal = async function (req, res, next) {
 
         let comprasCliente = await compra.findAll({
             attributes: [
-                'id', 
+                'id',
                 'fechapedido',
                 [sequelize.fn('SUM', sequelize.col('compraproducto.cantidad')), 'totalCantidad'],
-                [sequelize.fn('SUM', sequelize.literal('compraproducto.cantidad * compraproducto.precio')), 'totalPrecio']  // Realizamos la multiplicación con sequelize.literal
+                [sequelize.fn('SUM', sequelize.literal('compraproducto.cantidad * compraproducto.precio')), 'totalPrecio']
             ],
             where: { usuarioid: usuarioRecuperado.id },
             include: [
                 {
                     model: compraproducto,
                     as: 'compraproducto',
-                    attributes: [] 
+                    attributes: []
                 }
             ],
-            group: ['compra.id'], 
+            group: ['compra.id'],
             order: [['fechapedido', 'DESC']]
         });
+        if (comprasCliente.length == 0) {
+            return res.status(404).send("Compras vacio")
+        }
         return res.status(200).json(comprasCliente)
     } catch (error) {
         next(error)
     }
 }
 
+self.getPersonalDetails = async function (req, res, next) {
+    try {
+        const errors = validationResult(req)
+        if (!errors.isEmpty()) throw new Error(JSON.stringify(errors))
 
+        let decodedToken = req.decodedToken;
+        if (decodedToken == null || decodedToken[ClaimTypes.Name] == null) {
+            return res.status(404).send();
+        }
+        const usuarioRecuperado = await usuario.findOne({
+            where: { email: decodedToken[ClaimTypes.Name] },
+            raw: true,
+            attributes: ['id', 'email']
+        })
+        if (usuarioRecuperado == null) {
+            return res.status(404).send();
+        }
+        let verificar = await compra.findOne({
+            where: { id: req.params.id },
+            raw: true,
+            attributes: ['usuarioid']
+        });
+        if (verificar == null) {
+            return res.status(404).send();
+        }
+
+        if (verificar.usuarioid != usuarioRecuperado.id) {
+            return res.status(401).send();
+        }
+        let comprasproducto = await compraproducto.findAll({
+            where: { compraid: req.params.id },
+            raw: true,
+            attributes: ['productoid', 'cantidad']
+        });
+        if (comprasproducto.length == 0) {
+            return res.status(404).send();
+        }
+        let productosList = []
+        for (let compra of comprasproducto) {
+            let productos = await producto.findOne({
+                attributes: ['titulo', 'descripcion', 'precio'],
+                where: { id: compra.productoid }
+            });
+            if (producto) {
+                const productoConCantidad = {
+                    titulo: productos.titulo,
+                    descripcion: productos.descripcion,
+                    precio: productos.precio,
+                    cantidad: compra.cantidad
+                };
+
+                productosList.push(productoConCantidad);
+            }
+        }
+
+        return res.status(200).json(productosList)
+    } catch (error) {
+        next(error)
+    }
+}
 
 module.exports = self
