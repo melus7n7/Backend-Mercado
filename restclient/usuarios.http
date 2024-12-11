@@ -50,8 +50,8 @@ Content-Type: application/json
     "nombre": "Guillermo Vera"
 }
 
-###Cliente
-DELETE http://localhost:3000/api/usuarios/Cliente3000@gmail.com
+###Cliente con compras
+DELETE http://localhost:3000/api/usuarios/patito@uv.mx
 Authorization: Bearer {{token}}
 
 ###Cliente
