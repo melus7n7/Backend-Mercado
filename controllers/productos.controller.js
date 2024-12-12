@@ -121,6 +121,10 @@ self.create = async function (req, res, next) {
                 return res.status(404).send()
         }
 
+        if(req.body.precio <= 0 || req.body.cantidadDisponible < 0){
+            return res.status(400).send("No puede ser negativo");
+        }
+
         let data = await producto.create({
             titulo: req.body.titulo,
             descripcion: req.body.descripcion,
@@ -148,6 +152,10 @@ self.update = async function (req, res, next) {
             console.log(archivodata)
             if (!archivodata)
                 return res.status(404).send()
+        }
+
+        if(req.body.precio <= 0 || req.body.cantidadDisponible < 0){
+            return res.status(400).send("No puede ser negativo");
         }
 
         let id = req.params.id
