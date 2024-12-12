@@ -105,7 +105,6 @@ self.get = async function (req, res, next) {
             res.status(404).send()
 
     } catch (error) {
-        console.log(error)
         next(error)
     }
 }
