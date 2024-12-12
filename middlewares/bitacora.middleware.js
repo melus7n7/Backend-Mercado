@@ -6,15 +6,20 @@ const bitacoraLogger = (req,res,next) => {
     const ip = requestIp.getClientIp(req)
     let email = 'invitado'
 
-    req.bitacora = async (accion, id) => {
-        if(req.decodedToken){
-            email = req.decodedToken[ClaimTypes.Name]
+    try{
+        req.bitacora = async (accion, id) => {
+            if(req.decodedToken){
+                email = req.decodedToken[ClaimTypes.Name]
+            }
+            await bitacora.create({
+                accion: accion, elementoid: id, ip:ip, usuario:email, fecha:new Date()
+            })
         }
-        await bitacora.create({
-            accion: accion, elementoid: id, ip:ip, usuario:email, fecha:new Date()
-        })
+        next()
+    }catch(error){
+        next(error)
     }
-    next()
+    
 }
 
 module.exports = bitacoraLogger

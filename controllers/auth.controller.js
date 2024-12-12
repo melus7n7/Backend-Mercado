@@ -51,7 +51,6 @@ self.login = async function (req, res, next) {
 
 self.tiempo = async function (req, res) {
     const tiempo = TiempoRestanteToken(req)
-    req.bitacora("auth.tiempo", tiempo);
     if (tiempo == null) {
         res.status(404).send()
     }

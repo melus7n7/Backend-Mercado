@@ -63,7 +63,6 @@ self.get = async function (req, res, next) {
                     item.dataValues.usuario.dataValues.rol = item.dataValues.usuario.dataValues.rol.dataValues.nombre
                 }
             });
-            req.bitacora("compras.get", data)
             res.status(200).json(data)
         }
         else
@@ -130,7 +129,6 @@ self.getDetails = async function (req, res, next) {
                     data.dataValues.compraproducto[i].dataValues.producto = productoitem;
                 }
             }
-            req.bitacora("compras.getDetails", data)
             res.status(200).json(data)
         }
         else {
@@ -263,7 +261,7 @@ self.create = async function (req, res, next) {
         if (resultadodelete == null) {
             return res.status(404).send();
         }
-        req.bitacora("compras.create", carritoCompras.id)
+        req.bitacora("compras.crear", carritoCompras.id)
         await transaccion.commit();
         return res.status(201).json(compraCreada)
     } catch (error) {
@@ -310,7 +308,6 @@ self.getPersonal = async function (req, res, next) {
         if (comprasCliente.length == 0) {
             return res.status(404).send("Compras vacio")
         }
-        req.bitacora("compras.getPersonal", usuarioRecuperado.id)
         return res.status(200).json(comprasCliente)
     } catch (error) {
         next(error)
@@ -371,7 +368,6 @@ self.getPersonalDetails = async function (req, res, next) {
                 productosList.push(productoConCantidad);
             }
         }
-        req.bitacora("compras.getPersonal", getPersonalDetails)
         return res.status(200).json(productosList)
     } catch (error) {
         next(error)

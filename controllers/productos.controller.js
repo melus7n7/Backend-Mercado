@@ -233,7 +233,7 @@ self.eliminaCategoria = async function (req, res, next) {
 
         await item.removeCategoria(itemToRemove)
 
-        req.bitacora("productocategoria.remover", `${req.params.id}:${req.body.categoriaid}`)
+        req.bitacora("productocategoria.eliminar", `${req.params.id}:${req.body.categoriaid}`)
         res.status(204).send()
 
     } catch (error) {

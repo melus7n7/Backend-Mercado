@@ -32,8 +32,10 @@ self.getAll = async function (req, res, next) {
             attributes: ['id', 'email', 'nombre', [Sequelize.col('rol.nombre'), 'rol']],
             include: { model: rol, attributes: [] }
         })
-        req.bitacora("usuarios.getAll", data.id)
-        res.status(200).json(data)
+        if (data || data.length > 0) {
+            return res.status(200).json(data)
+        }
+        res.status(404).json(data)
     } catch (error) {
         next(error)
     }
@@ -51,7 +53,6 @@ self.get = async function (req, res, next) {
         if (data) {
             return res.status(200).json(data)
         }
-        req.bitacora("usuarios.get", data.id)
         res.status(404).send()
     } catch (error) {
         next(error)
@@ -81,7 +82,7 @@ self.create = async function (req, res, next) {
                 rolid: rolusuario.id,
                 protegido: 0
             })
-            req.bitacora("usuarios.create", data.id)
+            req.bitacora("usuarios.crear", data.id)
             res.status(201).json({
                 id: data.id,
                 email: data.email,
@@ -156,7 +157,7 @@ self.update = async function (req, res, next) {
         if (data[0] === 0) {
             return res.status(404).send()
         }
-        req.bitacora("usuarios.create", data.id)
+        req.bitacora("usuarios.editar", data.id)
         res.status(204).send()
     } catch (error) {
         next(error)
@@ -192,7 +193,7 @@ self.delete = async function (req, res, next) {
         if (data === 1) {
             return res.status(204).send();
         }
-        req.bitacora("usuarios.delete", data)
+        req.bitacora("usuarios.eliminar", data)
         return res.status(400).send();
     } catch (error) {
         next(error)

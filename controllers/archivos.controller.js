@@ -145,7 +145,7 @@ self.update = async function (req, res, next){
             datos: binario
         }, {where: { id: id }})
 
-        req.bitacora("archivos.crear", data.id)
+        req.bitacora("archivos.editar", data.id)
 
         if(data[0] === 0)
             return res.status(404).send()
