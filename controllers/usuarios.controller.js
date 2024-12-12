@@ -60,10 +60,15 @@ self.get = async function (req, res, next) {
 }
 self.create = async function (req, res, next) {
     try {
-        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?""{}|<>[\]\\/_=;:.-]).{8,}$/;
+        
         const token = req.header('Authorization')?.replace('Bearer ', '');
+        if (!req.body || !req.body.email || !req.body.password || !req.body.nombre) {
+            return res.status(400).send();
+        }
         const emailExistente = await usuario.findOne({ where: { email: req.body.email } })
-        if (!validator.isEmail(req.body.email) || !passwordRegex.test(req.body.password) || !req.body.nombre?.trim()) {
+
+        if (!validator.isEmail(req.body.email) || !passwordRegex.test(req.body.password) || !req.body.nombre?.trim() || req.body.email.length > 255 || req.body.password.length > 255 || req.body.nombre.length > 255 ){
             return res.status(422).send();
         }
         if (emailExistente) {
